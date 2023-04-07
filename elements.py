@@ -10,4 +10,5 @@ class Element(Enum):
     EARTH = 3,
     AIR = 4,
     LIGHTNING = 5,
-    POISON = 6
+    POISON = 6,
+    NONE = 7

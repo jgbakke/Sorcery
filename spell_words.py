@@ -1,7 +1,7 @@
 from enum import Enum
-from spell_types import *
 from typing import Dict, Tuple, Callable
 from elements import Element
+from spell_types import *
 
 
 class SpellWords(Enum):
