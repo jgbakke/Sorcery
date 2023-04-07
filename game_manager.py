@@ -17,6 +17,8 @@ class GameManager:
     def start_battle(self):
         for i in range(20):  # TODO: Go until somebody is dead
             print("Starting round", i)
+            print("Player health:", self._human_player._health)
+            print("AI health:", self._ai_player._health)
             self._human_player.take_turn(TurnContext(i, self, self._human_player, self._ai_player))
             self._ai_player.take_turn(TurnContext(i, self, self._ai_player, self._human_player))
             # TODO: Check healths
@@ -28,8 +30,10 @@ def take_player_turn(turn_context: TurnContext):
     # TODO: Real impl for getting input
     if turn_context.turn == 2:
         decode(
-            [SpellWords.HUP, SpellWords.RO, SpellWords.WAH, SpellWords.FUS, SpellWords.RO, SpellWords.DAH,
-             SpellWords.DAH], turn_context)
+            [SpellWords.HUP, SpellWords.RO, SpellWords.WAH,
+             SpellWords.FUS,
+             SpellWords.HUP, SpellWords.DAH, SpellWords.DAH, SpellWords.GUH,
+             SpellWords.RO], turn_context)
     else:
         decode([SpellWords.WAH, SpellWords.WAH, SpellWords.GUH], turn_context)
 

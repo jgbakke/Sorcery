@@ -3,13 +3,14 @@ from spell_words import SpellWords
 from typing import List, Callable
 from spell_types import no_spell
 from elements import Element
+from turn_context import TurnContext
 
 MAX_SPELL_WORDS = 9
 
 
-def decode(words: List, turn_context) -> Callable:
+def decode(words: List, turn_context: TurnContext):
     additional_empty_words_needed = MAX_SPELL_WORDS - len(words)
-    words.extend([SpellWords.EMPTY for _ in range(additional_empty_words_needed)])
+    words.extend([SpellWords.UH for _ in range(additional_empty_words_needed)])
     words = words[:MAX_SPELL_WORDS]
 
     spell = get_spell_type(words)
@@ -17,7 +18,7 @@ def decode(words: List, turn_context) -> Callable:
     spell_arguments = words[4:8]
     target = turn_context.current_player if (words[-1].value & 1) else turn_context.non_current_player
 
-    return spell(element_type, spell_arguments, target)
+    spell(element_type, spell_arguments, target, turn_context)
 
 
 def get_spell_type(words: List[SpellWords]) -> Callable:

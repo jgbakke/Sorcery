@@ -11,3 +11,6 @@ class GameAgent:
 
     def is_alive(self):
         return self._health > 0
+
+    def heal(self, health):
+        self._health += health

@@ -5,7 +5,7 @@ from spell_types import *
 
 
 class SpellWords(Enum):
-    EMPTY = 0
+    UH = 0
     HUP = 1
     RUH = 2
     WAH = 3
