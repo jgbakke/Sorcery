@@ -59,16 +59,23 @@ class GameManager:
 
 def take_player_turn(turn_context: TurnContext):
     # TODO: Real impl for getting input
+    spell_effect_description: str
     if turn_context.turn == 2:
-        decode(
+        spell_effect_description = decode(
             [SpellWords.HUP, SpellWords.RO, SpellWords.WAH,
-             SpellWords.FUS,
+             SpellWords.GUH,
              SpellWords.HUP, SpellWords.HUP, SpellWords.RUH, SpellWords.GUH,
              SpellWords.RO], turn_context)
     else:
-        decode([SpellWords.FUS, SpellWords.RO, SpellWords.DAH], turn_context)
+        spell_effect_description = decode([SpellWords.FUS, SpellWords.RO, SpellWords.DAH,
+                                           SpellWords.FUS], turn_context)
+
+    print(spell_effect_description) # TODO: Into UI instead
 
 
-game_manager: GameManager = GameManager(GameAgent(10, take_player_turn),
-                                        GameAgent(20, lambda _: print("AI says \"I am not yet a sentient AI :(\"")))
+game_manager: GameManager = GameManager(GameAgent(10, take_player_turn, "Player"),
+                                        GameAgent(20,
+                                                  lambda _: print("AI says \"I am not yet a sentient AI :(\""),
+                                                  "Monster")
+                                        )
 game_manager.start_battle()

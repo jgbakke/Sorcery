@@ -1,20 +1,32 @@
-from typing import List
-import elements
-from turn_context import TurnContext, PersistentEffect, TurnCallbackTime
+from typing import List, Optional
+from elements import Element, ElementalAttackData
+from turn_context import TurnContext, PersistentEffect, TurnCallbackTime, apply_poison
 from game_agent import GameAgent
+from dataclasses import dataclass
 
 
-def attack(damage, element, target, evade_stat):
-    # TODO: This will be moved to the combat api
-    # TODO: EvadeStat will not be a string, maybe an Enum for combat api to look up in the Enemy class?
-    #  Or maybe EvadeStat will just be passed in as a number target.getDexterity()
+@dataclass
+class AttackResult:
+    damage: int
+    hit: bool
+    attack_description: str
+
+
+def get_target_description(caster: GameAgent, target: GameAgent):
+    if caster is target:
+        return "yourself"
+
+    return target.name
+
+
+def attack(damage: int, element: Element, target: GameAgent, evade_stat) -> AttackResult:
+    # TODO: If evaded return AttackResult(0, False, miss flavor text)
     target.damage(damage)
-    print(target, " was attacked by elemental", element, "attack and received", damage, "damage")
+    return AttackResult(damage, True, f'The attack hits {target.name} for {damage} damage')
 
 
 def heal(health_recovered, element, recover_from_poison, turns_of_poison_immunity, target: GameAgent,
          turn_context: TurnContext):
-
     if turns_of_poison_immunity > 0:
         target.set_poison_immunity(True)
 
@@ -26,24 +38,57 @@ def heal(health_recovered, element, recover_from_poison, turns_of_poison_immunit
                                                         lambda: target.set_poison_immunity(False)))
 
     target.heal(health_recovered)
-    print("Recovered", health_recovered, "HP")
 
 
 # Spells start here
-def no_spell(element: elements.Element, arguments: List, target: GameAgent, turn_context: TurnContext):
-    print("You wait a moment but nothing happens.")
+def no_spell(element: Element, arguments: List, target: GameAgent, turn_context: TurnContext):
+    return "You wait a moment but nothing happens."
 
 
-def elemental_attack(element: elements.Element, arguments: List, target: GameAgent, turn_context: TurnContext):
-    base_damage = 3
-    # TODO: To avoid needing to always do .value or a count_bits() function, create util methods in decoder.py
+def elemental_attack(element: Element, arguments: List, target: GameAgent, turn_context: TurnContext):
     additional_damage = arguments[0].value + arguments[1].value + arguments[2].value
-    total_damage = base_damage + additional_damage
 
-    attack(total_damage, element, target, "dexterity")
-    print("You cast", element, "attack")
+    def elemental_attack_type() -> Optional[ElementalAttackData]:
+        if element == Element.WATER:
+            return ElementalAttackData(1, "large splash of water")
+        if element == Element.FIRE:
+            return ElementalAttackData(5, "fireball")
+        if element == Element.EARTH:
+            return ElementalAttackData(4, "rock the size of your head")
+        if element == Element.AIR:
+            return ElementalAttackData(1, "mighty gust of wind")
+        if element == Element.LIGHTNING:
+            return ElementalAttackData(4, "ball of electricity")
+        if element == Element.POISON:
+            poison_effect = apply_poison(turn_context.current_player, target, additional_damage, 1 + arguments[3].value)
+            return ElementalAttackData(1, "cloud of poison",
+                                       lambda: (turn_context.register_callback(
+                                           poison_effect)) if poison_effect is not None else None)
+
+        return None
+
+    attack_data: ElementalAttackData = elemental_attack_type()
+    if attack_data is None:
+        return f'You feel strange energy within you, but after waiting a moment nothing happens.'
+
+    total_damage = attack_data.base_damage
+    if element != element.POISON:
+        total_damage += additional_damage
+
+    attack_result: AttackResult = attack(total_damage, element, target, "dexterity")
+    if attack_result.hit:
+        attack_data.additional_effect()
+
+    return f'You create a {attack_data.description} and cast it toward ' \
+           f'{get_target_description(turn_context.current_player, target)}. {attack_result.attack_description}'
 
 
-def healing(element: elements.Element, arguments: List, target: GameAgent, turn_context: TurnContext):
-    heal(arguments[0].value, element, arguments[1].value & 4, arguments[2].value, target, turn_context)
-    print("You cast", element, "Heal. Gain immunity from poision for", arguments[2].value, "turns")
+def healing(element: Element, arguments: List, target: GameAgent, turn_context: TurnContext):
+    healing_amount = arguments[0].value
+    # TODO: Wire in recover from poison
+    poison_immunity_turns = arguments[2].value
+    heal(healing_amount, element, arguments[1].value & 4, poison_immunity_turns, target, turn_context)
+
+    poison_immunity_string = "" if poison_immunity_turns == 0 else f' {target.name} gains poison immunity for {poison_immunity_turns} turns'
+
+    return f'{target.name}\'s wounds begin to heal. {target.name} gains {healing_amount} HP.{poison_immunity_string}'

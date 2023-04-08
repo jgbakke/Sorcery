@@ -21,5 +21,6 @@ SpellTranslations: Dict[Tuple[SpellWords, SpellWords, SpellWords], Callable] = {
 }
 
 ElementTranslations: Dict[SpellWords, Element] = {
-    SpellWords.GUH: Element.POISON
+    SpellWords.GUH: Element.POISON,
+    SpellWords.FUS: Element.FIRE
 }

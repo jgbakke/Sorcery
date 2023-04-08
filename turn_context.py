@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 
 from game_agent import GameAgent
 from enum import Enum
@@ -30,3 +30,15 @@ class PersistentEffect:
         self.tooltip = tooltip
         self.turns = turns
         self.caster = caster
+
+
+def apply_poison(caster: GameAgent, target: GameAgent, turns: int, damage_per_turn: int) -> Optional[PersistentEffect]:
+    if target.poison_immunity:
+        return None
+
+    return PersistentEffect(caster, turns,
+                            f'{target.name} is afflicted with poison and will suffer {damage_per_turn} damage per turn',
+                            TurnCallbackTime.END,
+                            lambda: None,
+                            lambda: target.damage(damage_per_turn),
+                            lambda: None)

@@ -8,7 +8,7 @@ from turn_context import TurnContext
 MAX_SPELL_WORDS = 9
 
 
-def decode(words: List, turn_context: TurnContext):
+def decode(words: List, turn_context: TurnContext) -> str:
     additional_empty_words_needed = MAX_SPELL_WORDS - len(words)
     words.extend([SpellWords.UH for _ in range(additional_empty_words_needed)])
     words = words[:MAX_SPELL_WORDS]
@@ -18,7 +18,7 @@ def decode(words: List, turn_context: TurnContext):
     spell_arguments = words[4:8]
     target = turn_context.current_player if (words[-1].value & 1) else turn_context.non_current_player
 
-    spell(element_type, spell_arguments, target, turn_context)
+    return spell(element_type, spell_arguments, target, turn_context)
 
 
 def get_spell_type(words: List[SpellWords]) -> Callable:
