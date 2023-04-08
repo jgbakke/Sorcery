@@ -1,5 +1,5 @@
-from typing import List
-from turn_context import TurnContext, TurnCallbackTime, PersistentEffect
+from typing import List, Callable
+from turn_context import TurnContext, TurnCallbackTime, PersistentEffect, apply_poison
 from decoder import decode
 from spell_words import SpellWords
 from game_agent import GameAgent
@@ -73,9 +73,19 @@ def take_player_turn(turn_context: TurnContext):
     print(spell_effect_description) # TODO: Into UI instead
 
 
+def take_ai_turn(turn_context: TurnContext):
+    attacks: List[Callable] = [
+        lambda: turn_context.non_current_player.damage(3),
+        lambda: turn_context.non_current_player.damage(7),
+        lambda: turn_context.current_player.heal(3),
+        lambda: turn_context.register_callback(apply_poison(turn_context.current_player, turn_context.non_current_player, 5, 2))
+    ]
+
+    attacks[0]()
+
 game_manager: GameManager = GameManager(GameAgent(10, take_player_turn, "Player"),
                                         GameAgent(20,
-                                                  lambda _: print("AI says \"I am not yet a sentient AI :(\""),
+                                                  take_ai_turn,
                                                   "Monster")
                                         )
 game_manager.start_battle()
