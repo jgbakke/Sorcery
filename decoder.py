@@ -34,10 +34,3 @@ def get_element_type(word: SpellWords) -> Element:
         return Element.NONE
 
     return spell_words.ElementTranslations[word]
-
-# decoder = Decoder("player", "AI")
-# casted_spell = decoder.decode([SpellWords.FUS, SpellWords.RO, SpellWords.DAH, SpellWords.GUH, SpellWords.FUS, SpellWords.RO, SpellWords.DAH])
-# print()
-# casted_spell = decoder.decode([SpellWords.HUP, SpellWords.RO, SpellWords.WAH, SpellWords.GUH, SpellWords.GUH, SpellWords.HUP, SpellWords.WAH])
-# print()
-# casted_spell = decoder.decode([SpellWords.FUS, SpellWords.RO, SpellWords.DAH, SpellWords.GUH, SpellWords.RO, SpellWords.RO, SpellWords.DAH])

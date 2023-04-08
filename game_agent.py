@@ -16,6 +16,9 @@ class GameAgent:
     def heal(self, health):
         self._health += health
 
+    def damage(self, health):
+        self._health -= health
+
     def set_poison_immunity(self, value):
         self._poison_immunity = value
 

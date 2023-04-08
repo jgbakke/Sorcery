@@ -8,6 +8,7 @@ def attack(damage, element, target, evade_stat):
     # TODO: This will be moved to the combat api
     # TODO: EvadeStat will not be a string, maybe an Enum for combat api to look up in the Enemy class?
     #  Or maybe EvadeStat will just be passed in as a number target.getDexterity()
+    target.damage(damage)
     print(target, " was attacked by elemental", element, "attack and received", damage, "damage")
 
 

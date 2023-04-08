@@ -29,10 +29,22 @@ class GameManager:
         for expired in expired_callbacks:
             self._turn_callbacks.remove(expired)
 
+        self.check_alive()
+
     def take_turn(self, current_player: GameAgent, non_current_player: GameAgent, turn_num):
         self.execute_callbacks(current_player, TurnCallbackTime.START)
         current_player.take_turn(TurnContext(turn_num, self, current_player, non_current_player))
+        self.check_alive()
         self.execute_callbacks(current_player, TurnCallbackTime.END)
+
+    def check_alive(self):
+        if not self._human_player.is_alive():
+            print("AI wins!")
+            exit(0)
+
+        if not self._ai_player.is_alive():
+            print("Human wins")
+            exit(0)
 
     def start_battle(self):
         for i in range(20):  # TODO: Go until somebody is dead
@@ -41,7 +53,6 @@ class GameManager:
             self.take_turn(self._human_player, self._ai_player, i)
             print("AI health:", self._ai_player._health, "| Poison Immunity:", self._ai_player._poison_immunity)
             self.take_turn(self._ai_player, self._human_player, i)
-            # TODO: Check healths
             print()
             print()
 
@@ -55,7 +66,7 @@ def take_player_turn(turn_context: TurnContext):
              SpellWords.HUP, SpellWords.HUP, SpellWords.RUH, SpellWords.GUH,
              SpellWords.RO], turn_context)
     else:
-        decode([SpellWords.WAH, SpellWords.WAH, SpellWords.GUH], turn_context)
+        decode([SpellWords.FUS, SpellWords.RO, SpellWords.DAH], turn_context)
 
 
 game_manager: GameManager = GameManager(GameAgent(10, take_player_turn),
