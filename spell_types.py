@@ -1,6 +1,6 @@
 from typing import List
 import elements
-from turn_context import TurnContext
+from turn_context import TurnContext, PersistentEffect, TurnCallbackTime
 from game_agent import GameAgent
 
 
@@ -11,9 +11,18 @@ def attack(damage, element, target, evade_stat):
     print(target, " was attacked by elemental", element, "attack and received", damage, "damage")
 
 
-def heal(health_recovered, element, recover_from_poison, turns_of_poison_immunity, target: GameAgent, turn_context: TurnContext):
+def heal(health_recovered, element, recover_from_poison, turns_of_poison_immunity, target: GameAgent,
+         turn_context: TurnContext):
+
     if turns_of_poison_immunity > 0:
-        pass
+        target.set_poison_immunity(True)
+
+        turn_context.register_callback(PersistentEffect(turn_context.current_player, turns_of_poison_immunity,
+                                                        "Poison immunity",
+                                                        TurnCallbackTime.START,
+                                                        lambda: None,
+                                                        lambda: None,
+                                                        lambda: target.set_poison_immunity(False)))
 
     target.heal(health_recovered)
     print("Recovered", health_recovered, "HP")

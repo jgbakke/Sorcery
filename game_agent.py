@@ -5,6 +5,7 @@ class GameAgent:
     def __init__(self, health, turn_decision_strategy):
         self._health: int = health
         self._turn_decision_strategy: Callable = turn_decision_strategy
+        self._poison_immunity: bool = False
 
     def take_turn(self, turn_context):
         self._turn_decision_strategy(turn_context)
@@ -14,3 +15,10 @@ class GameAgent:
 
     def heal(self, health):
         self._health += health
+
+    def set_poison_immunity(self, value):
+        self._poison_immunity = value
+
+    @property
+    def health(self):
+        return self._health

@@ -1,5 +1,5 @@
-from typing import Callable, List
-from turn_context import TurnContext
+from typing import List
+from turn_context import TurnContext, TurnCallbackTime, PersistentEffect
 from decoder import decode
 from spell_words import SpellWords
 from game_agent import GameAgent
@@ -9,18 +9,38 @@ class GameManager:
     def __init__(self, human_player: GameAgent, ai_player: GameAgent):
         self._human_player = human_player
         self._ai_player = ai_player
-        self._turn_callbacks: List[Callable] = list()
+        self._turn_callbacks: List[PersistentEffect] = list()
 
     def register_callback(self, callback):
         self._turn_callbacks.append(callback)
 
+    def execute_callbacks(self, current_player: GameAgent, callback_type: TurnCallbackTime):
+        expired_callbacks: List[PersistentEffect] = list()
+
+        for callback in self._turn_callbacks:
+            if callback.caster is current_player and callback.effect_time == callback_type:
+                callback.per_turn_effect()
+                callback.turns -= 1
+                if callback.turns == 0:
+                    print(callback.tooltip, "wears off") # TODO: Name instead of tooltip?
+                    callback.end_effect()
+                    expired_callbacks.append(callback)
+
+        for expired in expired_callbacks:
+            self._turn_callbacks.remove(expired)
+
+    def take_turn(self, current_player: GameAgent, non_current_player: GameAgent, turn_num):
+        self.execute_callbacks(current_player, TurnCallbackTime.START)
+        current_player.take_turn(TurnContext(turn_num, self, current_player, non_current_player))
+        self.execute_callbacks(current_player, TurnCallbackTime.END)
+
     def start_battle(self):
         for i in range(20):  # TODO: Go until somebody is dead
             print("Starting round", i)
-            print("Player health:", self._human_player._health)
-            print("AI health:", self._ai_player._health)
-            self._human_player.take_turn(TurnContext(i, self, self._human_player, self._ai_player))
-            self._ai_player.take_turn(TurnContext(i, self, self._ai_player, self._human_player))
+            print("Player health:", self._human_player.health, "| Poison Immunity:", self._human_player._poison_immunity)
+            self.take_turn(self._human_player, self._ai_player, i)
+            print("AI health:", self._ai_player._health, "| Poison Immunity:", self._ai_player._poison_immunity)
+            self.take_turn(self._ai_player, self._human_player, i)
             # TODO: Check healths
             print()
             print()
@@ -32,7 +52,7 @@ def take_player_turn(turn_context: TurnContext):
         decode(
             [SpellWords.HUP, SpellWords.RO, SpellWords.WAH,
              SpellWords.FUS,
-             SpellWords.HUP, SpellWords.DAH, SpellWords.DAH, SpellWords.GUH,
+             SpellWords.HUP, SpellWords.HUP, SpellWords.RUH, SpellWords.GUH,
              SpellWords.RO], turn_context)
     else:
         decode([SpellWords.WAH, SpellWords.WAH, SpellWords.GUH], turn_context)
