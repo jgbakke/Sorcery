@@ -1,3 +1,4 @@
+from random import uniform
 from typing import List, Optional
 from elements import Element, ElementalAttackData
 from turn_context import TurnContext, PersistentEffect, TurnCallbackTime, apply_poison
@@ -36,6 +37,9 @@ def attack(damage: int, element: Element, target: GameAgent, evade_stat: EvadeSt
     target.damage(damage)
     return AttackResult(damage, True, f'The attack hits {target.name} for {damage} damage')
 
+
+def critical_hit(base_damage: int) -> int:
+    return round(uniform(1.8, 2.2) * base_damage)
 
 def heal(health_recovered, element, recover_from_poison, turns_of_poison_immunity, target: GameAgent,
          turn_context: TurnContext):
@@ -88,6 +92,9 @@ def elemental_attack(element: Element, arguments: List, target: GameAgent, turn_
     total_damage = attack_data.base_damage
     if element != element.POISON:
         total_damage += additional_damage
+
+    if target.is_opposite_element(element):
+        total_damage = critical_hit(total_damage)
 
     attack_result: AttackResult = attack(total_damage, element, target, EvadeStat.DEXTERITY)
     if attack_result.hit:

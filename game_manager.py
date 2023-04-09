@@ -70,7 +70,7 @@ def take_player_turn(turn_context: TurnContext):
              SpellWords.RO], turn_context)
     else:
         spell_effect_description = decode([SpellWords.FUS, SpellWords.RO, SpellWords.DAH,
-                                           SpellWords.FUS, SpellWords.FUS], turn_context)
+                                           SpellWords.RUH], turn_context)
 
     print(spell_effect_description)  # TODO: Into UI instead
 
