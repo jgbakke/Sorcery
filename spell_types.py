@@ -1,7 +1,7 @@
 from typing import List, Optional
 from elements import Element, ElementalAttackData
 from turn_context import TurnContext, PersistentEffect, TurnCallbackTime, apply_poison
-from game_agent import GameAgent
+from game_agent import GameAgent, EvadeStat
 from dataclasses import dataclass
 
 
@@ -19,14 +19,28 @@ def get_target_description(caster: GameAgent, target: GameAgent):
     return target.name
 
 
-def attack(damage: int, element: Element, target: GameAgent, evade_stat) -> AttackResult:
-    # TODO: If evaded return AttackResult(0, False, miss flavor text)
+def get_evade_flavor_text(target: GameAgent, evade_stat: EvadeStat) -> str:
+    if evade_stat == EvadeStat.DEXTERITY:
+        return f'The {target.name} quickly dodges the attack.'
+    if evade_stat == EvadeStat.WILL:
+        return f'You focus hard on the spell, but you cannot make it effect the {target.name}.'
+    if evade_stat == EvadeStat.ARMOR:
+        return f'The attack fails to penetrate the {target.name}\'s armor.'
+
+
+def attack(damage: int, element: Element, target: GameAgent, evade_stat: EvadeStat) -> AttackResult:
+    if target.evade(evade_stat, damage):
+        return AttackResult(0, False, get_evade_flavor_text(target, evade_stat))
+
+    damage = target.reduce_damage(damage, evade_stat)
     target.damage(damage)
     return AttackResult(damage, True, f'The attack hits {target.name} for {damage} damage')
 
 
 def heal(health_recovered, element, recover_from_poison, turns_of_poison_immunity, target: GameAgent,
          turn_context: TurnContext):
+    # TODO: Recover from poison
+    # TODO: Use element
     if turns_of_poison_immunity > 0:
         target.set_poison_immunity(True)
 
@@ -75,7 +89,7 @@ def elemental_attack(element: Element, arguments: List, target: GameAgent, turn_
     if element != element.POISON:
         total_damage += additional_damage
 
-    attack_result: AttackResult = attack(total_damage, element, target, "dexterity")
+    attack_result: AttackResult = attack(total_damage, element, target, EvadeStat.DEXTERITY)
     if attack_result.hit:
         attack_data.additional_effect()
 

@@ -2,7 +2,7 @@ from typing import List, Callable
 from turn_context import TurnContext, TurnCallbackTime, PersistentEffect, apply_poison
 from decoder import decode
 from spell_words import SpellWords
-from game_agent import GameAgent
+from game_agent import GameAgent, EvadeStat
 
 
 class GameManager:
@@ -75,7 +75,7 @@ def take_player_turn(turn_context: TurnContext):
 
 def take_ai_turn(turn_context: TurnContext):
     attacks: List[Callable] = [
-        lambda: turn_context.non_current_player.damage(3),
+        lambda: turn_context.non_current_player.damage(1),
         lambda: turn_context.non_current_player.damage(7),
         lambda: turn_context.current_player.heal(3),
         lambda: turn_context.register_callback(apply_poison(turn_context.current_player, turn_context.non_current_player, 5, 2))
@@ -83,9 +83,12 @@ def take_ai_turn(turn_context: TurnContext):
 
     attacks[0]()
 
-game_manager: GameManager = GameManager(GameAgent(10, take_player_turn, "Player"),
+game_manager: GameManager = GameManager(GameAgent(10, take_player_turn, "Player", {}),
                                         GameAgent(20,
                                                   take_ai_turn,
-                                                  "Monster")
+                                                  "Monster",
+                                                  {
+                                                      EvadeStat.DEXTERITY: 4
+                                                  })
                                         )
 game_manager.start_battle()
