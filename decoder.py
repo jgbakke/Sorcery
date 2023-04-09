@@ -30,7 +30,4 @@ def get_spell_type(words: List[SpellWords]) -> Callable:
 
 
 def get_element_type(word: SpellWords) -> Element:
-    if word not in spell_words.ElementTranslations:
-        return Element.NONE
-
-    return spell_words.ElementTranslations[word]
+    return spell_words.ElementTranslations.get(word, Element.NONE)

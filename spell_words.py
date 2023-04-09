@@ -21,6 +21,11 @@ SpellTranslations: Dict[Tuple[SpellWords, SpellWords, SpellWords], Callable] = {
 
 # TODO: Finish all these
 ElementTranslations: Dict[SpellWords, Element] = {
-    SpellWords.GUH: Element.POISON,
-    SpellWords.FUS: Element.FIRE
+    SpellWords.HUP: Element.WATER,
+    SpellWords.RUH: Element.FIRE,
+    SpellWords.WAH: Element.EARTH,
+    SpellWords.GUH: Element.AIR,
+    SpellWords.FUS: Element.LIGHTNING,
+    SpellWords.RO: Element.POISON,
+    SpellWords.DAH: Element.NONE
 }
