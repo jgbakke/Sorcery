@@ -16,7 +16,8 @@ class SpellWords(Enum):
 
 SpellTranslations: Dict[Tuple[SpellWords, SpellWords, SpellWords], Callable] = {
     (SpellWords.FUS, SpellWords.RO, SpellWords.DAH): elemental_attack,
-    (SpellWords.HUP, SpellWords.RO, SpellWords.WAH): healing
+    (SpellWords.HUP, SpellWords.RO, SpellWords.WAH): healing,
+    (SpellWords.RO, SpellWords.GUH, SpellWords.DAH): shield
 }
 
 ElementTranslations: Dict[SpellWords, Element] = {

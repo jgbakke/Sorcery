@@ -33,13 +33,14 @@ def attack(damage: int, element: Element, target: GameAgent, evade_stat: EvadeSt
     if target.evade(evade_stat, damage):
         return AttackResult(0, False, get_evade_flavor_text(target, evade_stat))
 
-    damage = target.reduce_damage(damage, evade_stat)
+    damage = max(0, target.reduce_damage(damage, evade_stat, element))
     target.damage(damage)
     return AttackResult(damage, True, f'The attack hits {target.name} for {damage} damage')
 
 
 def critical_hit(base_damage: int) -> int:
     return round(uniform(1.8, 2.2) * base_damage)
+
 
 def heal(health_recovered, element, recover_from_poison, turns_of_poison_immunity, target: GameAgent,
          turn_context: TurnContext):
@@ -121,3 +122,21 @@ def healing(element: Element, arguments: List, target: GameAgent, turn_context: 
     poison_immunity_string = "" if poison_immunity_turns == 0 else f' {target.name} gains poison immunity for {poison_immunity_turns} turns'
 
     return f'{target.name}\'s wounds begin to heal. {target.name} gains {healing_amount} HP.{poison_immunity_string}'
+
+
+def shield(element: Element, arguments: List, target: GameAgent, turn_context: TurnContext):
+    base_shield = 5
+    additional_shield = arguments[0].value + arguments[1].value + arguments[2].value
+    total_shield_strength = base_shield + additional_shield
+    target.apply_shield(element, total_shield_strength)
+    turn_context.register_callback(PersistentEffect(
+        turn_context.current_player,
+        1,
+        f'A shield of {element} protects {target.name} from the next attack, up to {total_shield_strength} HP',
+        TurnCallbackTime.START,
+        lambda: None,
+        lambda: None,
+        lambda: target.clear_shield()
+    ))
+
+    return f'You cast a shield of {element} to protect {target.name} from the next attack until its next turn, up to {total_shield_strength} HP.'

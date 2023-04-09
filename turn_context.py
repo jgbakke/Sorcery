@@ -23,13 +23,13 @@ class TurnCallbackTime(Enum):
 class PersistentEffect:
     def __init__(self, caster: GameAgent, turns: int, tooltip: str, effect_time: TurnCallbackTime,
                  initial_effect: Callable, per_turn_effect: Callable, end_effect: Callable):
-        self.effect_time = effect_time
-        self.end_effect = end_effect
-        self.per_turn_effect = per_turn_effect
-        self.initial_effect = initial_effect
-        self.tooltip = tooltip
-        self.turns = turns
         self.caster = caster
+        self.turns = turns
+        self.tooltip = tooltip
+        self.effect_time = effect_time
+        self.initial_effect = initial_effect
+        self.per_turn_effect = per_turn_effect
+        self.end_effect = end_effect
 
 
 def apply_poison(caster: GameAgent, target: GameAgent, turns: int, damage_per_turn: int) -> Optional[PersistentEffect]:

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Callable, Dict, Set
+from typing import Callable, Dict, Set, Tuple
 from random import randint
 from elements import Element
 
@@ -19,6 +19,7 @@ class GameAgent:
         self._poison_immunity: bool = False
         self._stats = stats
         self._elements = element
+        self._shield: Tuple[Element, int] = (Element.NONE, 0)
 
     def take_turn(self, turn_context):
         self._turn_decision_strategy(turn_context)
@@ -30,16 +31,30 @@ class GameAgent:
         self._health += health
 
     def damage(self, health):
-        self._health -= health
+        self._health -= max(0, health)
 
-    def reduce_damage(self, damage: int, evade_stat: EvadeStat) -> int:
+    def reduce_damage(self, damage: int, evade_stat: EvadeStat, attack_element: Element) -> int:
         if evade_stat == EvadeStat.ARMOR:
             return damage - self._get_evade_stat(evade_stat)
+
+        shield_strength: int = self._shield[1]
+        if shield_strength > 0:
+            if self._shield[0].is_opposite(attack_element):
+                shield_strength *= 2
+            print("Shield blocks", shield_strength)
+            self.clear_shield()
+            return damage - shield_strength
 
         return damage
 
     def set_poison_immunity(self, value):
         self._poison_immunity = value
+
+    def apply_shield(self, element: Element, shield_strength: int):
+        self._shield = (element, shield_strength)
+
+    def clear_shield(self):
+        self._shield = (Element.NONE, 0)
 
     def is_element_type(self, element: Element) -> bool:
         return element in self._elements

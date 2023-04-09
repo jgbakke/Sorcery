@@ -23,6 +23,7 @@ class GameManager:
                 callback.per_turn_effect()
                 callback.turns -= 1
                 if callback.turns == 0:
+                    # TODO: Rather than "wears off" let's log to the GUI all active tooltips
                     print(callback.tooltip, "wears off")  # TODO: Name instead of tooltip?
                     callback.end_effect()
                     expired_callbacks.append(callback)
@@ -69,15 +70,23 @@ def take_player_turn(turn_context: TurnContext):
              SpellWords.WAH, SpellWords.HUP, SpellWords.RUH, SpellWords.GUH,
              SpellWords.RO], turn_context)
     else:
-        spell_effect_description = decode([SpellWords.FUS, SpellWords.RO, SpellWords.DAH,
-                                           SpellWords.RUH], turn_context)
+        spell_effect_description = decode([SpellWords.RO, SpellWords.GUH, SpellWords.DAH,
+                                           SpellWords.RUH,
+                                           SpellWords.WAH, SpellWords.HUP, SpellWords.RUH, SpellWords.GUH,
+                                           SpellWords.FUS], turn_context)
 
     print(spell_effect_description)  # TODO: Into UI instead
 
 
+def ai_attack(turn_context: TurnContext, damage: int, element: Element):
+    damage_to_player = turn_context.non_current_player.reduce_damage(damage, EvadeStat.NONE, element)
+    turn_context.non_current_player.damage(damage_to_player)
+    print("Player takes", damage_to_player, "damage")
+
+
 def take_ai_turn(turn_context: TurnContext):
     attacks: List[Callable] = [
-        lambda: turn_context.non_current_player.damage(1),
+        lambda: ai_attack(turn_context, 3, Element.EARTH),
         lambda: turn_context.non_current_player.damage(7),
         lambda: turn_context.current_player.heal(3),
         lambda: turn_context.register_callback(
