@@ -3,6 +3,7 @@ from typing import Callable
 
 from dataclasses import dataclass
 
+
 class Element(Enum):
     def __str__(self):
         return self.name.lower()
@@ -14,6 +15,18 @@ class Element(Enum):
     LIGHTNING = 5,
     POISON = 6,
     NONE = 7
+
+    def is_opposite(self, other) -> bool:
+        elements: frozenset[Element] = frozenset([self, other])
+        return elements in OPPOSITE_ELEMENTS
+
+
+OPPOSITE_ELEMENTS: frozenset[frozenset[Element]] = frozenset([
+    frozenset([Element.WATER, Element.LIGHTNING]),
+    frozenset([Element.WATER, Element.FIRE]),
+    frozenset([Element.EARTH, Element.FIRE]),
+    frozenset([Element.AIR, Element.POISON])
+])
 
 @dataclass
 class ElementalAttackData:

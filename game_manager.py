@@ -3,6 +3,7 @@ from turn_context import TurnContext, TurnCallbackTime, PersistentEffect, apply_
 from decoder import decode
 from spell_words import SpellWords
 from game_agent import GameAgent, EvadeStat
+from elements import Element
 
 
 class GameManager:
@@ -22,7 +23,7 @@ class GameManager:
                 callback.per_turn_effect()
                 callback.turns -= 1
                 if callback.turns == 0:
-                    print(callback.tooltip, "wears off") # TODO: Name instead of tooltip?
+                    print(callback.tooltip, "wears off")  # TODO: Name instead of tooltip?
                     callback.end_effect()
                     expired_callbacks.append(callback)
 
@@ -49,7 +50,8 @@ class GameManager:
     def start_battle(self):
         for i in range(20):  # TODO: Go until somebody is dead
             print("Starting round", i)
-            print("Player health:", self._human_player.health, "| Poison Immunity:", self._human_player._poison_immunity)
+            print("Player health:", self._human_player.health, "| Poison Immunity:",
+                  self._human_player._poison_immunity)
             self.take_turn(self._human_player, self._ai_player, i)
             print("AI health:", self._ai_player._health, "| Poison Immunity:", self._ai_player._poison_immunity)
             self.take_turn(self._ai_player, self._human_player, i)
@@ -63,14 +65,14 @@ def take_player_turn(turn_context: TurnContext):
     if turn_context.turn == 2:
         spell_effect_description = decode(
             [SpellWords.HUP, SpellWords.RO, SpellWords.WAH,
-             SpellWords.GUH,
-             SpellWords.HUP, SpellWords.HUP, SpellWords.RUH, SpellWords.GUH,
+             SpellWords.RUH,
+             SpellWords.WAH, SpellWords.HUP, SpellWords.RUH, SpellWords.GUH,
              SpellWords.RO], turn_context)
     else:
         spell_effect_description = decode([SpellWords.FUS, SpellWords.RO, SpellWords.DAH,
-                                           SpellWords.FUS], turn_context)
+                                           SpellWords.FUS, SpellWords.FUS], turn_context)
 
-    print(spell_effect_description) # TODO: Into UI instead
+    print(spell_effect_description)  # TODO: Into UI instead
 
 
 def take_ai_turn(turn_context: TurnContext):
@@ -78,17 +80,21 @@ def take_ai_turn(turn_context: TurnContext):
         lambda: turn_context.non_current_player.damage(1),
         lambda: turn_context.non_current_player.damage(7),
         lambda: turn_context.current_player.heal(3),
-        lambda: turn_context.register_callback(apply_poison(turn_context.current_player, turn_context.non_current_player, 5, 2))
+        lambda: turn_context.register_callback(
+            apply_poison(turn_context.current_player, turn_context.non_current_player, 5, 2))
     ]
 
     attacks[0]()
 
-game_manager: GameManager = GameManager(GameAgent(10, take_player_turn, "Player", {}),
+
+game_manager: GameManager = GameManager(GameAgent(10, take_player_turn, "Player", {}, {Element.NONE}),
                                         GameAgent(20,
                                                   take_ai_turn,
                                                   "Monster",
                                                   {
-                                                      EvadeStat.DEXTERITY: 4
-                                                  })
+                                                      EvadeStat.DEXTERITY: 4,
+                                                      EvadeStat.WILL: 2
+                                                  },
+                                                  {Element.EARTH})
                                         )
 game_manager.start_battle()

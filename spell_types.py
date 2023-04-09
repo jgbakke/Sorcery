@@ -99,6 +99,14 @@ def elemental_attack(element: Element, arguments: List, target: GameAgent, turn_
 
 def healing(element: Element, arguments: List, target: GameAgent, turn_context: TurnContext):
     healing_amount = arguments[0].value
+
+    if target.is_opposite_element(element):
+        attack_result: AttackResult = attack(healing_amount, element, target, EvadeStat.WILL)
+        if attack_result.hit:
+            return f'{target.name} writhes in pain. {target.name} loses {healing_amount} HP.'
+        else:
+            return f'You feel yourself casting energy at the {target.name}. {attack_result.attack_description}'
+
     # TODO: Wire in recover from poison
     poison_immunity_turns = arguments[2].value
     heal(healing_amount, element, arguments[1].value & 4, poison_immunity_turns, target, turn_context)

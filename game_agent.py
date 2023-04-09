@@ -1,6 +1,7 @@
 from enum import Enum
-from typing import Callable, Dict
+from typing import Callable, Dict, Set
 from random import randint
+from elements import Element
 
 
 class EvadeStat(Enum):
@@ -11,12 +12,13 @@ class EvadeStat(Enum):
 
 
 class GameAgent:
-    def __init__(self, health: int, turn_decision_strategy: Callable, name: str, stats: Dict[EvadeStat, int]):
+    def __init__(self, health: int, turn_decision_strategy: Callable, name: str, stats: Dict[EvadeStat, int], element: Set[Element]):
         self._health: int = health
         self._turn_decision_strategy: Callable = turn_decision_strategy
         self.name: str = name
         self._poison_immunity: bool = False
         self._stats = stats
+        self._elements = element
 
     def take_turn(self, turn_context):
         self._turn_decision_strategy(turn_context)
@@ -38,6 +40,12 @@ class GameAgent:
 
     def set_poison_immunity(self, value):
         self._poison_immunity = value
+
+    def is_element_type(self, element: Element) -> bool:
+        return element in self._elements
+
+    def is_opposite_element(self, other_element: Element) -> bool:
+        return any([element.is_opposite(other_element) for element in self._elements])
 
     def evade(self, evade_stat: EvadeStat, attack_strength: int) -> bool:
         evade_stat_score: int = self._get_evade_stat(evade_stat)

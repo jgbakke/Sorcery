@@ -19,7 +19,6 @@ SpellTranslations: Dict[Tuple[SpellWords, SpellWords, SpellWords], Callable] = {
     (SpellWords.HUP, SpellWords.RO, SpellWords.WAH): healing
 }
 
-# TODO: Finish all these
 ElementTranslations: Dict[SpellWords, Element] = {
     SpellWords.HUP: Element.WATER,
     SpellWords.RUH: Element.FIRE,
