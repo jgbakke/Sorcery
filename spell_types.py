@@ -33,6 +33,9 @@ def attack(damage: int, element: Element, target: GameAgent, evade_stat: EvadeSt
     if target.evade(evade_stat, damage):
         return AttackResult(0, False, get_evade_flavor_text(target, evade_stat))
 
+    if target.is_opposite_element(element):
+        damage = critical_hit(damage)
+
     damage = max(0, target.reduce_damage(damage, evade_stat, element))
     target.damage(damage)
     return AttackResult(damage, True, f'The attack hits {target.name} for {damage} damage')
@@ -94,9 +97,6 @@ def elemental_attack(element: Element, arguments: List, target: GameAgent, turn_
     if element != element.POISON:
         total_damage += additional_damage
 
-    if target.is_opposite_element(element):
-        total_damage = critical_hit(total_damage)
-
     attack_result: AttackResult = attack(total_damage, element, target, EvadeStat.DEXTERITY)
     if attack_result.hit:
         attack_data.additional_effect()
@@ -140,3 +140,45 @@ def shield(element: Element, arguments: List, target: GameAgent, turn_context: T
     ))
 
     return f'You cast a shield of {element} to protect {target.name} from the next attack until its next turn, up to {total_shield_strength} HP.'
+
+
+def elemental_ignite(element: Element, arguments: List, target: GameAgent, turn_context: TurnContext):
+    additional_damage = arguments[0].value + arguments[1].value + arguments[2].value
+
+    def elemental_attack_type() -> Optional[ElementalAttackData]:
+        if element == Element.WATER:
+            return ElementalAttackData(8 if target.is_opposite_element(element) else 1, "large ball of water engulfs")
+        if element == Element.FIRE:
+            return ElementalAttackData(5, "giant flame engulfs")
+        if element == Element.EARTH:
+            return ElementalAttackData(4, "large thorned branch wraps around")
+        if element == Element.AIR:
+            return ElementalAttackData(3, "vortex of strong wind swirls around")
+        if element == Element.LIGHTNING:
+            return ElementalAttackData(5, "electrical storm surrounds")
+        if element == Element.POISON:
+            poison_effect = apply_poison(turn_context.current_player, target, additional_damage, 1 + arguments[3].value)
+            return ElementalAttackData(3, "cloud of poison engulfs",
+                                       lambda: (turn_context.register_callback(
+                                           poison_effect)) if poison_effect is not None else None)
+
+        return None
+
+    attack_data: ElementalAttackData = elemental_attack_type()
+    if attack_data is None:
+        return f'You feel strange energy within you, but after waiting a moment nothing happens.'
+
+    total_damage = attack_data.base_damage + additional_damage
+
+    if target.is_element_type(element) and element != Element.EARTH:
+        heal_amount = round(uniform(0.8, 1.2) * total_damage)
+        target.heal(heal_amount)
+        return f'A {attack_data.description} {target.name}. Its wounds begin to heal. It heals {heal_amount} HP'
+
+    attack_result: AttackResult = attack(total_damage, element, target, EvadeStat.WILL)
+    if attack_result.hit:
+        attack_data.additional_effect()
+    else:
+        return attack_result.attack_description
+
+    return f'A {attack_data.description} {target.name} and it takes {attack_result.damage} damage'

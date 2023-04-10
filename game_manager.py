@@ -70,10 +70,10 @@ def take_player_turn(turn_context: TurnContext):
              SpellWords.WAH, SpellWords.HUP, SpellWords.RUH, SpellWords.GUH,
              SpellWords.RO], turn_context)
     else:
-        spell_effect_description = decode([SpellWords.RO, SpellWords.GUH, SpellWords.DAH,
-                                           SpellWords.RUH,
-                                           SpellWords.WAH, SpellWords.HUP, SpellWords.RUH, SpellWords.GUH,
-                                           SpellWords.FUS], turn_context)
+        spell_effect_description = decode([SpellWords.FUS, SpellWords.RO, SpellWords.GUH,
+                                           SpellWords.HUP,
+                                           SpellWords.UH, SpellWords.UH, SpellWords.UH, SpellWords.UH,
+                                           SpellWords.UH], turn_context)
 
     print(spell_effect_description)  # TODO: Into UI instead
 
@@ -86,7 +86,7 @@ def ai_attack(turn_context: TurnContext, damage: int, element: Element):
 
 def take_ai_turn(turn_context: TurnContext):
     attacks: List[Callable] = [
-        lambda: ai_attack(turn_context, 3, Element.EARTH),
+        lambda: ai_attack(turn_context, 1, Element.EARTH),
         lambda: turn_context.non_current_player.damage(7),
         lambda: turn_context.current_player.heal(3),
         lambda: turn_context.register_callback(
@@ -102,7 +102,7 @@ game_manager: GameManager = GameManager(GameAgent(10, take_player_turn, "Player"
                                                   "Monster",
                                                   {
                                                       EvadeStat.DEXTERITY: 4,
-                                                      EvadeStat.WILL: 2
+                                                      EvadeStat.WILL: 3
                                                   },
                                                   {Element.EARTH})
                                         )
