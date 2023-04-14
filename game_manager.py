@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import List, Callable, Union
 from turn_context import TurnContext, TurnCallbackTime, PersistentEffect, apply_poison
 from decoder import decode
 from spell_words import SpellWords
@@ -11,6 +11,7 @@ class GameManager:
         self._human_player = human_player
         self._ai_player = ai_player
         self._turn_callbacks: List[PersistentEffect] = list()
+        self.turn = 0
 
     def register_callback(self, callback):
         self._turn_callbacks.append(callback)
@@ -31,33 +32,38 @@ class GameManager:
         for expired in expired_callbacks:
             self._turn_callbacks.remove(expired)
 
-        self.check_alive()
-
     def take_turn(self, current_player: GameAgent, non_current_player: GameAgent, turn_num):
         self.execute_callbacks(current_player, TurnCallbackTime.START)
         current_player.take_turn(TurnContext(turn_num, self, current_player, non_current_player))
-        self.check_alive()
         self.execute_callbacks(current_player, TurnCallbackTime.END)
 
-    def check_alive(self):
+        return self.check_winner()
+
+    def check_winner(self) -> Union[GameAgent, None]:
         if not self._human_player.is_alive():
             print("AI wins!")
-            exit(0)
+            return self._ai_player
 
         if not self._ai_player.is_alive():
             print("Human wins")
-            exit(0)
+            return self._human_player
 
     def start_battle(self):
-        for i in range(20):  # TODO: Go until somebody is dead
-            print("Starting round", i)
-            print("Player health:", self._human_player.health, "| Poison Immunity:",
-                  self._human_player._poison_immunity)
-            self.take_turn(self._human_player, self._ai_player, i)
-            print("AI health:", self._ai_player._health, "| Poison Immunity:", self._ai_player._poison_immunity)
-            self.take_turn(self._ai_player, self._human_player, i)
-            print()
-            print()
+        print("Using the GUI now")
+        # for i in range(20):  # TODO: Go until somebody is dead
+        #     print("Starting round", i)
+        #     print("Player health:", self._human_player.health, "| Poison Immunity:",
+        #           self._human_player._poison_immunity)
+        #     self.take_turn(self._human_player, self._ai_player, i)
+        #     print("AI health:", self._ai_player._health, "| Poison Immunity:", self._ai_player._poison_immunity)
+        #     self.take_turn(self._ai_player, self._human_player, i)
+        #     print()
+        #     print()
+
+    def next_turn(self):
+        self.take_turn(self._human_player, self._ai_player, self.turn)
+        self.take_turn(self._ai_player, self._human_player, self.turn)
+        self.turn += 1
 
 
 def take_player_turn(turn_context: TurnContext):
@@ -94,16 +100,3 @@ def take_ai_turn(turn_context: TurnContext):
     ]
 
     attacks[0]()
-
-
-game_manager: GameManager = GameManager(GameAgent(10, take_player_turn, "Player", {}, {Element.NONE}),
-                                        GameAgent(20,
-                                                  take_ai_turn,
-                                                  "Monster",
-                                                  {
-                                                      EvadeStat.DEXTERITY: 4,
-                                                      EvadeStat.WILL: 3
-                                                  },
-                                                  {Element.EARTH})
-                                        )
-game_manager.start_battle()
