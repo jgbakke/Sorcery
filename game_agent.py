@@ -12,10 +12,12 @@ class EvadeStat(Enum):
 
 
 class GameAgent:
-    def __init__(self, health: int, turn_decision_strategy: Callable, name: str, stats: Dict[EvadeStat, int], element: Set[Element]):
-        self._health: int = health
-        self._turn_decision_strategy: Callable = turn_decision_strategy
+    def __init__(self, health: int, turn_decision_strategy: Callable, name: str, stats: Dict[EvadeStat, int], element: Set[Element], image_path: str):
         self.name: str = name
+        self.image_path: str = image_path
+        self._health: int = health
+        self._starting_health = self._health
+        self._turn_decision_strategy: Callable = turn_decision_strategy
         self._poison_immunity: bool = False
         self._stats = stats
         self._elements = element
@@ -82,3 +84,6 @@ class GameAgent:
     @property
     def health(self):
         return self._health
+
+    def health_percent(self) -> float:
+        return self._health / self._starting_health

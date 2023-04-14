@@ -1,6 +1,7 @@
 import pygame
 import pygame_gui
-
+from battle_screen import BattleScreen
+from game_agent import GameAgent
 pygame.init()
 
 pygame.display.set_caption('Quick Start')
@@ -10,6 +11,10 @@ background = pygame.Surface((800, 600))
 background.fill(pygame.Color('#148c1a'))
 
 manager = pygame_gui.UIManager((800, 600), theme_path="theme.json")
+
+human: GameAgent = GameAgent(10, lambda: None, "Player", {}, set(), "art/player.png")
+enemy: GameAgent = GameAgent(10, lambda: None, "Enemy", {}, set(), "art/lion_warrior.png")
+battle_screen: BattleScreen = BattleScreen(human, enemy, manager)
 
 clock = pygame.time.Clock()
 is_running = True
@@ -45,5 +50,6 @@ while is_running:
 
     window_surface.blit(background, (0, 0))
     manager.draw_ui(window_surface)
+    battle_screen.draw()
 
     pygame.display.update()
