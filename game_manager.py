@@ -39,11 +39,11 @@ class GameManager:
 
         return messages
 
-    def take_human_turn(self):
-        self._take_turn(self._human_player, self._ai_player)
+    def take_human_turn(self) -> Union[GameAgent, None]:
+        return self._take_turn(self._human_player, self._ai_player)
 
-    def take_ai_turn(self):
-        self._take_turn(self._ai_player, self._human_player)
+    def take_ai_turn(self) -> Union[GameAgent, None]:
+        return self._take_turn(self._ai_player, self._human_player)
 
     def _take_turn(self, current_player: GameAgent, non_current_player: GameAgent):
         self.execute_callbacks(current_player, TurnCallbackTime.START)
