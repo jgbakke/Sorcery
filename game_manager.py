@@ -3,6 +3,8 @@ from turn_context import TurnContext, TurnCallbackTime, PersistentEffect, apply_
 from decoder import decode
 from spell_words import SpellWords
 from game_agent import GameAgent
+from enemy_types import *
+from random import sample
 
 
 class GameManager:
@@ -83,9 +85,23 @@ def take_ai_turn(turn_context: TurnContext):
 
     attacks[0]()
 
-game_manager: GameManager = GameManager(GameAgent(10, take_player_turn, "Player"),
-                                        GameAgent(20,
-                                                  take_ai_turn,
-                                                  "Monster")
+def take_enemy_turn(enemy, turn_context: TurnContext):
+    if enemy == None:
+        return
+    attack = sample(enemy.attacks, k=1)[0]
+    print(attack.name, attack.description)
+    if attack.target_self:
+        turn_context.current_player.heal(attack.hp)
+    else:
+        turn_context.non_current_player.damage(attack.hp)
+
+
+    
+
+game_manager: GameManager = GameManager(GameAgent(100, take_player_turn, "Player"),
+                                        GameAgent(200,
+                                                  take_enemy_turn,
+                                                  RAT_KING.name,
+                                                  enemy=RAT_KING)
                                         )
 game_manager.start_battle()
