@@ -1,6 +1,5 @@
 from enum import Enum
 from typing import Dict, Tuple, Callable
-from elements import Element
 from spell_types import *
 
 
@@ -17,10 +16,17 @@ class SpellWords(Enum):
 
 SpellTranslations: Dict[Tuple[SpellWords, SpellWords, SpellWords], Callable] = {
     (SpellWords.FUS, SpellWords.RO, SpellWords.DAH): elemental_attack,
-    (SpellWords.HUP, SpellWords.RO, SpellWords.WAH): healing
+    (SpellWords.DAH, SpellWords.RO, SpellWords.FUS): healing,
+    (SpellWords.DAH, SpellWords.RO, SpellWords.DAH): shield,
+    (SpellWords.FUS, SpellWords.RO, SpellWords.GUH): elemental_ignite
 }
 
 ElementTranslations: Dict[SpellWords, Element] = {
-    SpellWords.GUH: Element.POISON,
-    SpellWords.FUS: Element.FIRE
+    SpellWords.HUP: Element.WATER,
+    SpellWords.RUH: Element.FIRE,
+    SpellWords.WAH: Element.EARTH,
+    SpellWords.GUH: Element.AIR,
+    SpellWords.FUS: Element.LIGHTNING,
+    SpellWords.RO: Element.POISON,
+    SpellWords.DAH: Element.NONE
 }
