@@ -25,14 +25,19 @@ class GameManager:
             if callback.caster is current_player and callback.effect_time == callback_type:
                 callback.per_turn_effect()
                 callback.turns -= 1
-                if callback.turns == 0:
-                    # TODO: Rather than "wears off" let's log to the GUI all active tooltips
-                    print(callback.tooltip, "wears off")  # TODO: Name instead of tooltip?
+                if callback.turns <= 0:
                     callback.end_effect()
                     expired_callbacks.append(callback)
 
         for expired in expired_callbacks:
             self._turn_callbacks.remove(expired)
+
+    def get_persistent_effects_messages(self) -> List[str]:
+        messages: List[str] = list()
+        for callback in self._turn_callbacks:
+            messages.append(f'{callback.tooltip} for {callback.turns} more turns')
+
+        return messages
 
     def take_human_turn(self):
         self._take_turn(self._human_player, self._ai_player)
@@ -58,11 +63,6 @@ class GameManager:
 
     def start_battle(self):
         print("Using the GUI now. Will be removing this func")
-
-    def next_turn(self):
-        self.take_turn(self._human_player, self._ai_player)
-        self.take_turn(self._ai_player, self._human_player)
-        self.turn += 1
 
 
 def ai_attack(turn_context: TurnContext, damage: int, element: Element):

@@ -49,6 +49,11 @@ class BattleScreen:
             html_text="",
             manager=self._gui_manager)
 
+        self._persistent_effects_box = pygame_gui.elements.UITextBox(
+            relative_rect=pygame.Rect((300, 510), (400, 180)),
+            html_text="",
+            manager=self._gui_manager)
+
         self.cast_spell = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((425, 140), (150, 60)),
                                                        text="Cast Spell",
                                                        manager=self._gui_manager)
@@ -57,6 +62,9 @@ class BattleScreen:
 
     def write_message(self, message: str):
         self._message_box.set_text(message)
+
+    def write_persistent_effects(self, message: List[str]):
+        self._persistent_effects_box.set_text("<br>".join(message))
 
     def on_button_press(self, ui_element):
         if ui_element == self.cast_spell:
