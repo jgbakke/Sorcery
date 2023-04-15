@@ -34,7 +34,13 @@ class GameManager:
         for expired in expired_callbacks:
             self._turn_callbacks.remove(expired)
 
-    def take_turn(self, current_player: GameAgent, non_current_player: GameAgent):
+    def take_human_turn(self):
+        self._take_turn(self._human_player, self._ai_player)
+
+    def take_ai_turn(self):
+        self._take_turn(self._ai_player, self._human_player)
+
+    def _take_turn(self, current_player: GameAgent, non_current_player: GameAgent):
         self.execute_callbacks(current_player, TurnCallbackTime.START)
         current_player.take_turn(TurnContext(self.turn, self, current_player, non_current_player))
         self.execute_callbacks(current_player, TurnCallbackTime.END)

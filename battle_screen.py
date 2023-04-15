@@ -21,42 +21,42 @@ class BattleScreen:
         self._human_image = pygame.image.load(player.image_path).convert_alpha()
         self._enemy_image = pygame.image.load(enemy.image_path).convert_alpha()
 
-        self.human_icon = pygame_gui.elements.UIImage(relative_rect=pygame.Rect((20, 380), (200, 200)),
+        self.human_icon = pygame_gui.elements.UIImage(relative_rect=pygame.Rect((20, 520), (200, 200)),
                                                       image_surface=self._human_image,
                                                       manager=gui_manager)
 
-        self.enemy_icon = pygame_gui.elements.UIImage(relative_rect=pygame.Rect((580, 380), (200, 200)),
+        self.enemy_icon = pygame_gui.elements.UIImage(relative_rect=pygame.Rect((780, 520), (200, 200)),
                                                       image_surface=self._enemy_image,
                                                       manager=gui_manager)
 
-        self.player_health_bar = pygame_gui.elements.UIStatusBar(pygame.Rect((20, 350), (200, 20)),
+        self.player_health_bar = pygame_gui.elements.UIStatusBar(pygame.Rect((20, 490), (200, 20)),
                                                                  gui_manager,
                                                                  percent_method=player.health_percent)
 
-        self.enemy_health_bar = pygame_gui.elements.UIStatusBar(pygame.Rect((580, 350), (200, 20)),
+        self.enemy_health_bar = pygame_gui.elements.UIStatusBar(pygame.Rect((780, 490), (200, 20)),
                                                                 gui_manager,
                                                                 percent_method=enemy.health_percent)
 
         self.spell_buttons: Dict[pygame_gui.elements.UIButton, SpellWords] = self.create_spell_word_buttons()
         self.pending_spell_words: List[SpellWords] = list()
         self.pending_spell_words_label = pygame_gui.elements.UITextBox(
-            relative_rect=pygame.Rect((40, 80), (720, 40)),
+            relative_rect=pygame.Rect((100, 80), (800, 40)),
             html_text=EMPTY_SPELL_STRING,
             manager=self._gui_manager)
 
-        self.message_box = pygame_gui.elements.UITextBox(
-            relative_rect=pygame.Rect((20, 230), (760, 100)),
+        self._message_box = pygame_gui.elements.UITextBox(
+            relative_rect=pygame.Rect((20, 230), (960, 100)),
             html_text="",
             manager=self._gui_manager)
 
-        self.cast_spell = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((340, 140), (120, 60)),
+        self.cast_spell = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((425, 140), (150, 60)),
                                                        text="Cast Spell",
                                                        manager=self._gui_manager)
 
         self.player_turn_callback: Callable[[List[SpellWords]], None] = player_turn_callback
 
     def write_message(self, message: str):
-        self.message_box.set_text(message)
+        self._message_box.set_text(message)
 
     def on_button_press(self, ui_element):
         if ui_element == self.cast_spell:
@@ -74,7 +74,7 @@ class BattleScreen:
         button_size = (BUTTON_WIDTH, 50)
 
         for (button, word) in enumerate(SpellWords):
-            button_position = (SPACING_BETWEEN_BUTTONS + button * BUTTON_WIDTH, 15)
+            button_position = (100 + SPACING_BETWEEN_BUTTONS + button * BUTTON_WIDTH, 15)
             buttons[pygame_gui.elements.UIButton(relative_rect=pygame.Rect(button_position, button_size),
                                                  text=str(word),
                                                  manager=self._gui_manager)] = word

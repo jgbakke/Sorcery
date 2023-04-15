@@ -10,15 +10,17 @@ from elements import Element
 from spell_words import SpellWords
 from turn_context import TurnContext
 
+TIME_BETWEEN_TURNS = 5000
+
 pygame.init()
 
 pygame.display.set_caption('Quick Start')
-window_surface = pygame.display.set_mode((800, 600))
+window_surface = pygame.display.set_mode((1000, 750))
 
-background = pygame.Surface((800, 600))
+background = pygame.Surface((1000, 750))
 background.fill(pygame.Color('#148c1a'))
 
-manager = pygame_gui.UIManager((800, 600), theme_path="theme.json")
+manager = pygame_gui.UIManager((1000, 750), theme_path="theme.json")
 
 clock = pygame.time.Clock()
 is_running = True
@@ -45,16 +47,17 @@ gm: game_manager.GameManager = game_manager.GameManager(
 )
 
 player_turn: bool = True
+player_took_turn_at: int = 0
 
 
 def take_player_turn(words: List[SpellWords]):
-    global player_turn, player_words
+    global player_turn, player_words, player_took_turn_at
     if player_turn:
-        # player_turn = False
-        # TODO: Set to false and wait for AI before we can take turn again
+        player_turn = False
         player_words = words
-        gm.take_turn(human_player, ai_player)
+        gm.take_human_turn()
         battle_screen.clear_pending_spell()
+        player_took_turn_at = pygame.time.get_ticks()
     else:
         print("Not your turn")
 
@@ -69,9 +72,6 @@ def do_turn():
         exit(0)
 
 
-take_turn_event = 25
-# pygame.time.set_timer(take_turn_event, 1000)
-
 while is_running:
     time_delta = clock.tick(60) / 1000.0
     for event in pygame.event.get():
@@ -84,6 +84,10 @@ while is_running:
         manager.process_events(event)
 
     manager.update(time_delta)
+
+    if not player_turn and pygame.time.get_ticks() - player_took_turn_at > TIME_BETWEEN_TURNS:
+        gm.take_ai_turn()
+        player_turn = True
 
     window_surface.blit(background, (0, 0))
     manager.draw_ui(window_surface)
