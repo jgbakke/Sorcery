@@ -54,6 +54,7 @@ def take_player_turn(words: List[SpellWords]):
     global player_turn, player_words, player_took_turn_at
     if player_turn:
         player_turn = False
+        battle_screen.enable_player_turn_buttons(False)
         player_words = words
         gm.take_human_turn()
         battle_screen.clear_pending_spell()
@@ -80,9 +81,10 @@ while is_running:
     manager.update(time_delta)
 
     if not player_turn and pygame.time.get_ticks() - player_took_turn_at > TIME_BETWEEN_TURNS:
-        gm.take_ai_turn() # TODO: Display enemy attack tooltip?
+        gm.take_ai_turn() # TODO: Display enemy attack tooltip
         battle_screen.write_persistent_effects(gm.get_persistent_effects_messages())
         player_turn = True
+        battle_screen.enable_player_turn_buttons(True)
 
     # TODO: Check if somebody is dead
 

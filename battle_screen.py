@@ -60,6 +60,8 @@ class BattleScreen:
 
         self.player_turn_callback: Callable[[List[SpellWords]], None] = player_turn_callback
 
+        self._player_turn_buttons = [i for i in self.spell_buttons.keys()] + [self.cast_spell]
+
     def write_message(self, message: str):
         self._message_box.set_text(message)
 
@@ -76,6 +78,13 @@ class BattleScreen:
             label_text = " ".join([str(word) for word in self.pending_spell_words])
             self.pending_spell_words_label.set_text(f"<b><i>{label_text}</i></b>")
             print(label_text)
+
+    def enable_player_turn_buttons(self, enabled: bool):
+        for button in self._player_turn_buttons:
+            if enabled:
+                button.enable()
+            else:
+                button.disable()
 
     def create_spell_word_buttons(self) -> Dict[pygame_gui.elements.UIButton, SpellWords]:
         buttons = dict()
