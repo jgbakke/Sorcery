@@ -26,10 +26,7 @@ class GameAgent:
         self.enemy : Enemy = enemy
 
     def take_turn(self, turn_context):
-        if self.enemy != None:
-            self._turn_decision_strategy(self.enemy, turn_context)
-        else:
-            self._turn_decision_strategy(turn_context)
+        self._turn_decision_strategy(turn_context)
 
     def is_alive(self):
         return self._health > 0

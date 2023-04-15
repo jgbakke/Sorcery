@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Callable
 
 from game_agent import GameAgent
 import pygame_gui
@@ -11,7 +11,10 @@ EMPTY_SPELL_STRING = '<b>Say a spell by selecting the word buttons</b>'
 
 
 class BattleScreen:
-    def __init__(self, player: GameAgent, enemy: GameAgent, gui_manager: pygame_gui.UIManager):
+    def __init__(self, player: GameAgent,
+                 enemy: GameAgent,
+                 gui_manager: pygame_gui.UIManager,
+                 player_turn_callback: Callable[[List[SpellWords]], None]):
         self._player: GameAgent = player
         self._enemy: GameAgent = enemy
         self._gui_manager: gui_manager = gui_manager
@@ -37,19 +40,26 @@ class BattleScreen:
         self.spell_buttons: Dict[pygame_gui.elements.UIButton, SpellWords] = self.create_spell_word_buttons()
         self.pending_spell_words: List[SpellWords] = list()
         self.pending_spell_words_label = pygame_gui.elements.UITextBox(
-            relative_rect=pygame.Rect((40, 150), (700, 40)),
+            relative_rect=pygame.Rect((40, 150), (720, 40)),
             html_text=EMPTY_SPELL_STRING,
             manager=self._gui_manager)
 
+        self.cast_spell = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((340, 200), (120, 60)),
+                                                       text="Cast Spell",
+                                                       manager=self._gui_manager)
+
+        self.player_turn_callback: Callable[[List[SpellWords]], None] = player_turn_callback
+
     def on_button_press(self, ui_element):
+        if ui_element == self.cast_spell:
+            self.player_turn_callback(self.pending_spell_words)
+
         pressed_word: SpellWords = self.spell_buttons.get(ui_element)
         if pressed_word:
             self.pending_spell_words.append(pressed_word)
             label_text = " ".join([str(word) for word in self.pending_spell_words])
             self.pending_spell_words_label.set_text(f"<b><i>{label_text}</i></b>")
             print(label_text)
-
-
 
     def create_spell_word_buttons(self) -> Dict[pygame_gui.elements.UIButton, SpellWords]:
         buttons = dict()
@@ -62,5 +72,6 @@ class BattleScreen:
                                                  manager=self._gui_manager)] = word
         return buttons
 
-    def draw(self):
-        pass
+    def clear_pending_spell(self):
+        self.pending_spell_words.clear()
+        self.pending_spell_words_label.set_text(EMPTY_SPELL_STRING)

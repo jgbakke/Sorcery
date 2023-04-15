@@ -34,9 +34,9 @@ class GameManager:
         for expired in expired_callbacks:
             self._turn_callbacks.remove(expired)
 
-    def take_turn(self, current_player: GameAgent, non_current_player: GameAgent, turn_num):
+    def take_turn(self, current_player: GameAgent, non_current_player: GameAgent):
         self.execute_callbacks(current_player, TurnCallbackTime.START)
-        current_player.take_turn(TurnContext(turn_num, self, current_player, non_current_player))
+        current_player.take_turn(TurnContext(self.turn, self, current_player, non_current_player))
         self.execute_callbacks(current_player, TurnCallbackTime.END)
 
         return self.check_winner()
@@ -51,39 +51,12 @@ class GameManager:
             return self._human_player
 
     def start_battle(self):
-        print("Using the GUI now")
-        # for i in range(20):  # TODO: Go until somebody is dead
-        #     print("Starting round", i)
-        #     print("Player health:", self._human_player.health, "| Poison Immunity:",
-        #           self._human_player._poison_immunity)
-        #     self.take_turn(self._human_player, self._ai_player, i)
-        #     print("AI health:", self._ai_player._health, "| Poison Immunity:", self._ai_player._poison_immunity)
-        #     self.take_turn(self._ai_player, self._human_player, i)
-        #     print()
-        #     print()
+        print("Using the GUI now. Will be removing this func")
 
     def next_turn(self):
-        self.take_turn(self._human_player, self._ai_player, self.turn)
-        self.take_turn(self._ai_player, self._human_player, self.turn)
+        self.take_turn(self._human_player, self._ai_player)
+        self.take_turn(self._ai_player, self._human_player)
         self.turn += 1
-
-
-def take_player_turn(turn_context: TurnContext):
-    # TODO: Real impl for getting input
-    spell_effect_description: str
-    if turn_context.turn == 2:
-        spell_effect_description = decode(
-            [SpellWords.HUP, SpellWords.RO, SpellWords.WAH,
-             SpellWords.RUH,
-             SpellWords.WAH, SpellWords.HUP, SpellWords.RUH, SpellWords.GUH,
-             SpellWords.RO], turn_context)
-    else:
-        spell_effect_description = decode([SpellWords.FUS, SpellWords.RO, SpellWords.GUH,
-                                           SpellWords.HUP,
-                                           SpellWords.UH, SpellWords.UH, SpellWords.UH, SpellWords.UH,
-                                           SpellWords.UH], turn_context)
-
-    print(spell_effect_description)  # TODO: Into UI instead
 
 
 def ai_attack(turn_context: TurnContext, damage: int, element: Element):
