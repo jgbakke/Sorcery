@@ -4,6 +4,9 @@ from spell_types import *
 
 
 class SpellWords(Enum):
+    def __str__(self):
+        return self.name.upper()
+
     UH = 0
     HUP = 1
     RUH = 2

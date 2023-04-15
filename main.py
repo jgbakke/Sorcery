@@ -18,14 +18,6 @@ manager = pygame_gui.UIManager((800, 600), theme_path="theme.json")
 clock = pygame.time.Clock()
 is_running = True
 
-play_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
-                                           text='Play',
-                                           manager=manager)
-
-quit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 375), (100, 50)),
-                                           text='Quit',
-                                           manager=manager)
-
 human_player = GameAgent(10, game_manager.take_player_turn, "Player", {}, {Element.NONE}, "art/player.png")
 
 ai_player = GameAgent(20,
@@ -44,10 +36,7 @@ battle_screen: BattleScreen = BattleScreen(human_player, ai_player, manager)
 
 
 def on_button_press(pressedButton):
-    if pressedButton == play_button:
-        print('The game has not been made yet. You cannot play :(')
-    if pressedButton == quit_button:
-        exit(0)
+    pass
 
 
 def do_turn():
@@ -57,8 +46,8 @@ def do_turn():
         exit(0)
 
 
-take_turn_event = pygame.USEREVENT+1
-pygame.time.set_timer(take_turn_event, 1000)
+take_turn_event = 25
+# pygame.time.set_timer(take_turn_event, 1000)
 
 while is_running:
     time_delta = clock.tick(60) / 1000.0
@@ -66,12 +55,8 @@ while is_running:
         if event.type == pygame.QUIT:
             is_running = False
 
-        # TODO: Why is the user timer triggering this one?
-        # if event.type == pygame_gui.UI_BUTTON_PRESSED:
-        #     on_button_press(event.ui_element)
-
-        if event.type == take_turn_event:
-            do_turn()
+        if event.type == pygame_gui.UI_BUTTON_PRESSED:
+            battle_screen.on_button_press(event.ui_element)
 
         manager.process_events(event)
 
