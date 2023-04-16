@@ -34,17 +34,13 @@ def decode_player_spell(turn_context: TurnContext):
 
 
 human_player = GameAgent(10, decode_player_spell, "Player", {}, {Element.NONE}, "art/player.png")
-
-ai_player = game_manager.EnemyFactory(RAT_KING) # Should be able to interchange RAT_KING with any of the enemies in enemy_type.
-
-gm: game_manager.GameManager = game_manager.GameManager(
-    human_player,
-    ai_player
-)
+ai_player: GameAgent
+gm: game_manager.GameManager
 
 player_turn: bool = True
-in_battle: bool = True
+in_battle: bool = False
 player_took_turn_at: int = 0
+battle_screen: BattleScreen = None
 
 
 def take_player_turn(words: List[SpellWords]):
@@ -60,8 +56,15 @@ def take_player_turn(words: List[SpellWords]):
             player_took_turn_at = pygame.time.get_ticks()
 
 
-battle_screen: BattleScreen = BattleScreen(human_player, ai_player, manager, take_player_turn)
-gm.init_gui(battle_screen)
+def start_battle(enemy: Enemy):
+    global battle_screen, gm, in_battle, ai_player
+    ai_player = game_manager.EnemyFactory(enemy)
+    gm = game_manager.GameManager(human_player, ai_player)
+    battle_screen = BattleScreen(human_player, ai_player, manager, take_player_turn)
+    gm.init_gui(battle_screen)
+    in_battle = True
+
+start_battle(RAT_KING)
 
 
 def check_end_battle(winning_agent: Union[GameAgent, None]) -> bool:
@@ -71,11 +74,10 @@ def check_end_battle(winning_agent: Union[GameAgent, None]) -> bool:
 
     if winning_agent is human_player:
         # TODO: Get a tip and add it to the notebook, then reset and pick new battle
-        battle_screen.write_message(f'You defeated the {ai_player.name}!')
+        battle_screen.write_message(
+            f'You defeated the {ai_player.name}! Reload the game to choose another enemy to fight.')
     elif winning_agent is ai_player:
-        battle_screen.write_message(f'You died!')
-        # TODO: Del battle_screen and load the menu
-        # del battle_screen
+        battle_screen.write_message(f'You died! Reload the game to try again.')
 
     in_battle = False
     return True
@@ -88,7 +90,7 @@ while is_running:
             is_running = False
 
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
-            if in_battle and battle_screen is not None:
+            if in_battle:
                 battle_screen.on_button_press(event.ui_element)
 
         manager.process_events(event)
