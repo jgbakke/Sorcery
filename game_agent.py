@@ -31,7 +31,7 @@ class GameAgent:
         return self._health > 0
 
     def heal(self, health):
-        self._health += health
+        self._health = min(self._health + health, self._starting_health)
 
     def damage(self, health):
         self._health -= max(0, health)
