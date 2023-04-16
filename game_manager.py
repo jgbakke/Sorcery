@@ -5,6 +5,7 @@ from battle_screen import BattleScreen
 from enemy_types import *
 from game_agent import GameAgent
 from turn_context import TurnContext, TurnCallbackTime, PersistentEffect
+from random import uniform
 
 
 class GameManager:
@@ -67,7 +68,7 @@ def take_enemy_turn(turn_context: TurnContext):
     attacks = turn_context.current_player.attacks
     attack = sample(attacks, k=1)[0]
     gui_output = f'{turn_context.current_player.name} uses {attack.name}. {attack.description}'
-    attack_strength = attack.hp # TODO: A little randomization here? +/- 10% maybe?
+    attack_strength = round(attack.hp * uniform(0.9, 1.1))
 
     if attack.target_self:
         turn_context.current_player.heal(attack_strength)
