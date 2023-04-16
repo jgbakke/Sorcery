@@ -15,10 +15,7 @@ class GameAgent:
     def __init__(self, health: int, turn_decision_strategy: Callable, name: str, stats: Dict[EvadeStat, int], element: Set[Element], image_path: str, attacks: List[Any] = None):
         self.name: str = name
         self.image_path: str = image_path
-        if attacks != None:
-            self.attacks = attacks
-        else:
-            self.attacks = None
+        self.attacks = attacks
         self._health: int = health
         self._starting_health = self._health
         self._turn_decision_strategy: Callable = turn_decision_strategy
@@ -28,7 +25,7 @@ class GameAgent:
         self._shield: Tuple[Element, int] = (Element.NONE, 0)
 
     def take_turn(self, turn_context):
-        self._turn_decision_strategy(turn_context, self.attacks)
+        self._turn_decision_strategy(turn_context)
 
     def is_alive(self):
         return self._health > 0

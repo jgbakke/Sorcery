@@ -1,60 +1,72 @@
+from typing import List
+
 import pygame
 import pygame_gui
 from battle_screen import BattleScreen
+from decoder import decode
 from game_agent import GameAgent, EvadeStat
 import game_manager
 from elements import Element
+from spell_words import SpellWords
+from turn_context import TurnContext
+
+TIME_BETWEEN_TURNS = 5000
 from enemy_types import *
 
 pygame.init()
 
 pygame.display.set_caption('Quick Start')
-window_surface = pygame.display.set_mode((800, 600))
+window_surface = pygame.display.set_mode((1000, 750))
 
-background = pygame.Surface((800, 600))
+background = pygame.Surface((1000, 750))
 background.fill(pygame.Color('#148c1a'))
 
-manager = pygame_gui.UIManager((800, 600), theme_path="theme.json")
+manager = pygame_gui.UIManager((1000, 750), theme_path="theme.json")
 
 clock = pygame.time.Clock()
 is_running = True
+player_words = []
 
-play_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
-                                           text='Play',
-                                           manager=manager)
 
-quit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 375), (100, 50)),
-                                           text='Quit',
-                                           manager=manager)
+def decode_player_spell(turn_context: TurnContext):
+    spell_effect_description = decode(player_words, turn_context)
+    battle_screen.write_message(spell_effect_description)
 
-human_player = GameAgent(10, game_manager.take_player_turn, "Player", {}, {Element.NONE}, "art/player.png")
 
-ai_player = game_manager.EnemyFactory(RAT_KING)
+human_player = GameAgent(10, decode_player_spell, "Player", {}, {Element.NONE}, "art/player.png")
+
+ai_player = game_manager.EnemyFactory(RAT_KING) # Should be able to interchange RAT_KING with any of the enemies in enemy_type.
 
 gm: game_manager.GameManager = game_manager.GameManager(
     human_player,
     ai_player
 )
 
-battle_screen: BattleScreen = BattleScreen(human_player, ai_player, manager)
+player_turn: bool = True
+player_took_turn_at: int = 0
 
 
-def on_button_press(pressedButton):
-    if pressedButton == play_button:
-        print('The game has not been made yet. You cannot play :(')
-    if pressedButton == quit_button:
-        exit(0)
+def take_player_turn(words: List[SpellWords]):
+    global player_turn, player_words, player_took_turn_at
+    if player_turn:
+        player_turn = False
+        battle_screen.enable_player_turn_buttons(False)
+        player_words = words
+
+        winning_agent = gm.take_human_turn()
+        if winning_agent is not None:
+            battle_screen.write_message(f'{winning_agent.name} won!')
+
+        battle_screen.clear_pending_spell()
+        battle_screen.write_persistent_effects(gm.get_persistent_effects_messages())
+        player_took_turn_at = pygame.time.get_ticks()
+
+    else:
+        print("Not your turn")
 
 
-def do_turn():
-    gm.next_turn()
-    if human_player.health <= 0 or ai_player.health <= 0:
-        print("Somebody did the win")
-        exit(0)
+battle_screen: BattleScreen = BattleScreen(human_player, ai_player, manager, take_player_turn)
 
-
-take_turn_event = pygame.USEREVENT+1
-pygame.time.set_timer(take_turn_event, 1000)
 
 while is_running:
     time_delta = clock.tick(60) / 1000.0
@@ -62,19 +74,26 @@ while is_running:
         if event.type == pygame.QUIT:
             is_running = False
 
-        # TODO: Why is the user timer triggering this one?
-        # if event.type == pygame_gui.UI_BUTTON_PRESSED:
-        #     on_button_press(event.ui_element)
-
-        if event.type == take_turn_event:
-            do_turn()
+        if event.type == pygame_gui.UI_BUTTON_PRESSED:
+            battle_screen.on_button_press(event.ui_element)
 
         manager.process_events(event)
 
     manager.update(time_delta)
 
+    if not player_turn and pygame.time.get_ticks() - player_took_turn_at > TIME_BETWEEN_TURNS:
+        # TODO: Display enemy attack tooltip
+        winner = gm.take_ai_turn()
+        if winner is not None:
+            battle_screen.write_message(f'{winner.name} won!')
+
+        battle_screen.write_persistent_effects(gm.get_persistent_effects_messages())
+        player_turn = True
+        battle_screen.enable_player_turn_buttons(True)
+
+    # TODO: Check if somebody is dead
+
     window_surface.blit(background, (0, 0))
     manager.draw_ui(window_surface)
-    battle_screen.draw()
 
     pygame.display.update()
