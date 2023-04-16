@@ -20,7 +20,7 @@ class Notebook:
             data = json.load(resultsFile)
         resultsFile.close()
         
-        return data
+        return str(data)
 
     def write_results(data):
         if data is not None and type(data) is dict:

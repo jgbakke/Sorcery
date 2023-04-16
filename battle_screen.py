@@ -7,8 +7,6 @@ import pygame_gui
 import pygame
 from notebook import Notebook
 from spell_words import SpellWords
-from tkinter import *
-from tkinter import messagebox
 
 BUTTON_WIDTH = 95
 SPACING_BETWEEN_BUTTONS = 20
@@ -84,6 +82,8 @@ class BattleScreen:
         self._player_turn_buttons = [i for i in self.spell_buttons.keys()] + [self.cast_spell]
         self.notebook = Notebook
 
+        # self.output_window = self.add_element(pygame_gui.elements.UIWindow(pygame.Rect(400, 20, 300, 400), window_display_title="Pygame GUI Formatted Text"))
+        
     def clear_ui(self):
         for element in self._ui_elements:
             element.kill()
@@ -109,7 +109,12 @@ class BattleScreen:
             self.player_turn_callback(self.pending_spell_words)
 
         if ui_element == self.book_button:
-            messagebox.showinfo(title='Lexicon', message=self.read_notebook())
+            output_window = (pygame_gui.elements.UIWindow(pygame.Rect(400, 20, 300, 400), window_display_title="Lexicon"))
+            (pygame_gui.elements.UITextBox(
+                relative_rect=pygame.Rect((0, 0),  output_window.get_container().get_size()),
+                html_text=self.read_notebook(),
+                container=output_window))
+
 
         pressed_word: SpellWords = self.spell_buttons.get(ui_element)
         if pressed_word:
