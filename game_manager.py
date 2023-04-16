@@ -57,11 +57,9 @@ class GameManager:
 
     def check_winner(self) -> Union[GameAgent, None]:
         if not self._human_player.is_alive():
-            print("AI wins!")
             return self._ai_player
 
         if not self._ai_player.is_alive():
-            print("Human wins")
             return self._human_player
 
 

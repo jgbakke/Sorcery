@@ -1,5 +1,7 @@
 from typing import Dict, List, Callable
 
+from pygame_gui.core.interfaces import IUIElementInterface
+
 from game_agent import GameAgent
 import pygame_gui
 import pygame
@@ -18,49 +20,59 @@ class BattleScreen:
         self._player: GameAgent = player
         self._enemy: GameAgent = enemy
         self._gui_manager: gui_manager = gui_manager
+        self._ui_elements: List[IUIElementInterface] = list()
         self._human_image = pygame.image.load(player.image_path).convert_alpha()
         self._enemy_image = pygame.image.load(enemy.image_path).convert_alpha()
 
-        self.human_icon = pygame_gui.elements.UIImage(relative_rect=pygame.Rect((20, 520), (200, 200)),
-                                                      image_surface=self._human_image,
-                                                      manager=gui_manager)
+        self.human_icon = self.add_element(pygame_gui.elements.UIImage(relative_rect=pygame.Rect((20, 520), (200, 200)),
+                                                       image_surface=self._human_image,
+                                                       manager=gui_manager))
 
-        self.enemy_icon = pygame_gui.elements.UIImage(relative_rect=pygame.Rect((780, 520), (200, 200)),
-                                                      image_surface=self._enemy_image,
-                                                      manager=gui_manager)
+        self.enemy_icon = self.add_element(pygame_gui.elements.UIImage(relative_rect=pygame.Rect((780, 520), (200, 200)),
+                                                       image_surface=self._enemy_image,
+                                                       manager=gui_manager))
 
-        self.player_health_bar = pygame_gui.elements.UIStatusBar(pygame.Rect((20, 490), (200, 20)),
-                                                                 gui_manager,
-                                                                 percent_method=player.health_percent)
+        self.player_health_bar = self.add_element(pygame_gui.elements.UIStatusBar(pygame.Rect((20, 490), (200, 20)),
+                                                                  gui_manager,
+                                                                  percent_method=player.health_percent))
 
-        self.enemy_health_bar = pygame_gui.elements.UIStatusBar(pygame.Rect((780, 490), (200, 20)),
+        self.enemy_health_bar = self.add_element(pygame_gui.elements.UIStatusBar(pygame.Rect((780, 490), (200, 20)),
                                                                 gui_manager,
-                                                                percent_method=enemy.health_percent)
+                                                                percent_method=enemy.health_percent))
 
         self.spell_buttons: Dict[pygame_gui.elements.UIButton, SpellWords] = self.create_spell_word_buttons()
         self.pending_spell_words: List[SpellWords] = list()
-        self.pending_spell_words_label = pygame_gui.elements.UITextBox(
+        self.pending_spell_words_label = self.add_element(pygame_gui.elements.UITextBox(
             relative_rect=pygame.Rect((100, 80), (800, 40)),
             html_text=EMPTY_SPELL_STRING,
-            manager=self._gui_manager)
+            manager=self._gui_manager))
 
-        self._message_box = pygame_gui.elements.UITextBox(
+        self._message_box = self.add_element(pygame_gui.elements.UITextBox(
             relative_rect=pygame.Rect((20, 230), (960, 100)),
             html_text="",
-            manager=self._gui_manager)
+            manager=self._gui_manager))
 
-        self._persistent_effects_box = pygame_gui.elements.UITextBox(
+        self._persistent_effects_box = self.add_element(pygame_gui.elements.UITextBox(
             relative_rect=pygame.Rect((300, 510), (400, 180)),
             html_text="",
-            manager=self._gui_manager)
+            manager=self._gui_manager))
 
-        self.cast_spell = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((425, 140), (150, 60)),
-                                                       text="Cast Spell",
-                                                       manager=self._gui_manager)
+        self.cast_spell = self.add_element(
+            pygame_gui.elements.UIButton(relative_rect=pygame.Rect((425, 140), (150, 60)),
+                                         text="Cast Spell",
+                                         manager=self._gui_manager))
 
         self.player_turn_callback: Callable[[List[SpellWords]], None] = player_turn_callback
 
         self._player_turn_buttons = [i for i in self.spell_buttons.keys()] + [self.cast_spell]
+
+    def __del__(self):
+        for element in self._ui_elements:
+            element.kill()
+
+    def add_element(self, button: IUIElementInterface) -> IUIElementInterface:
+        self._ui_elements.append(button)
+        return button
 
     def write_message(self, message):
         self._message_box.set_text(str(message))
@@ -92,9 +104,13 @@ class BattleScreen:
 
         for (button, word) in enumerate(SpellWords):
             button_position = (100 + SPACING_BETWEEN_BUTTONS + button * BUTTON_WIDTH, 15)
-            buttons[pygame_gui.elements.UIButton(relative_rect=pygame.Rect(button_position, button_size),
-                                                 text=str(word),
-                                                 manager=self._gui_manager)] = word
+            added_button: pygame_gui.elements.UIButton = self.add_element(
+                pygame_gui.elements.UIButton(relative_rect=pygame.Rect(button_position, button_size),
+                                             text=str(word),
+                                             manager=self._gui_manager))
+
+            buttons[added_button] = word
+
         return buttons
 
     def clear_pending_spell(self):
