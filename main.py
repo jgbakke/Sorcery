@@ -4,6 +4,7 @@ from battle_screen import BattleScreen
 from game_agent import GameAgent, EvadeStat
 import game_manager
 from elements import Element
+from enemy_types import *
 
 pygame.init()
 
@@ -28,12 +29,7 @@ quit_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 375),
 
 human_player = GameAgent(10, game_manager.take_player_turn, "Player", {}, {Element.NONE}, "art/player.png")
 
-ai_player = GameAgent(20,
-                      game_manager.take_ai_turn,
-                      "Monster",
-                      {EvadeStat.DEXTERITY: 4, EvadeStat.WILL: 3},
-                      {Element.EARTH},
-                      "art/lion_warrior.png")
+ai_player = game_manager.EnemyFactory(RAT_KING)
 
 gm: game_manager.GameManager = game_manager.GameManager(
     human_player,

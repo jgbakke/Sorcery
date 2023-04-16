@@ -68,7 +68,7 @@ class GameManager:
         self.turn += 1
 
 
-def take_player_turn(turn_context: TurnContext):
+def take_player_turn(turn_context: TurnContext, attacks):
     # TODO: Real impl for getting input
     spell_effect_description: str
     if turn_context.turn == 2:
@@ -103,17 +103,30 @@ def take_ai_turn(turn_context: TurnContext):
 
     attacks[0]()
 
-def take_enemy_turn(enemy, turn_context: TurnContext):
-    if enemy == None:
-        return
-    attack = sample(enemy.attacks, k=1)[0]
+def take_enemy_turn(turn_context: TurnContext, attacks):
+    attack = sample(attacks, k=1)[0]
     print(attack.name, attack.description)
     if attack.target_self:
         turn_context.current_player.heal(attack.hp)
     else:
         turn_context.non_current_player.damage(attack.hp)
 
-
+def EnemyFactory(enemy: Enemy) -> GameAgent:
+    name = enemy.name
+    desc = enemy.description
+    attacks = enemy.attacks
+    elemental = {enemy.elemental}
+    filepath = enemy.filepath
+    hp = enemy.hp
+    stats = enemy.stats
+    game_agent = GameAgent(hp,
+                      take_enemy_turn,
+                      name,
+                      stats,
+                      elemental,
+                      filepath,
+                      attacks=attacks)
+    return game_agent
     
 def example_enemy_turn():
     game_manager: GameManager = GameManager(GameAgent(100, take_player_turn, "Player"),
