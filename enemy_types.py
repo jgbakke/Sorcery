@@ -59,7 +59,7 @@ MAGE_LIGHTNING = Enemy("Lightning Mage",
                "A mage recenty graduated from the School of Spells and Magic, the Mage uses the most academically viable spells and magic in combat.",
                [EnemyAttack("Elemental Bolt", f"Fires a {Element.LIGHTNING} bolt at the player.", 10), EnemyAttack("Mage Heal", "Heals Mage", 10, target_self=True), EnemyAttack("Elemental Ball", f"Fires a {Element.LIGHTNING} ball at the player.", 15)],
                Element.ANY,
-                "",
+                "art/player.png", # TODO: Don't use the same one
                 100,
                 {EvadeStat.DEXTERITY: 4, EvadeStat.WILL: 3})
 

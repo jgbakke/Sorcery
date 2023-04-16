@@ -7,6 +7,7 @@ import game_manager
 from battle_screen import BattleScreen
 from decoder import decode
 from game_agent import GameAgent
+from level_select import LevelSelect, Level, LEVELS
 from spell_words import SpellWords
 from turn_context import TurnContext
 
@@ -41,6 +42,7 @@ player_turn: bool = True
 in_battle: bool = False
 player_took_turn_at: int = 0
 battle_screen: BattleScreen = None
+level_select: LevelSelect = LevelSelect(LEVELS, manager)
 
 
 def take_player_turn(words: List[SpellWords]):
@@ -56,15 +58,15 @@ def take_player_turn(words: List[SpellWords]):
             player_took_turn_at = pygame.time.get_ticks()
 
 
-def start_battle(enemy: Enemy):
+def start_battle(enemy: Enemy, message: str):
     global battle_screen, gm, in_battle, ai_player
+    level_select.clear_ui()
     ai_player = game_manager.EnemyFactory(enemy)
     gm = game_manager.GameManager(human_player, ai_player)
     battle_screen = BattleScreen(human_player, ai_player, manager, take_player_turn)
     gm.init_gui(battle_screen)
+    battle_screen.write_message(message)
     in_battle = True
-
-start_battle(RAT_KING)
 
 
 def check_end_battle(winning_agent: Union[GameAgent, None]) -> bool:
@@ -75,7 +77,8 @@ def check_end_battle(winning_agent: Union[GameAgent, None]) -> bool:
     if winning_agent is human_player:
         # TODO: Get a tip and add it to the notebook, then reset and pick new battle
         battle_screen.write_message(
-            f'You defeated the {ai_player.name}! Reload the game to choose another enemy to fight.')
+            f'You defeated the {ai_player.name}! {level.spell_hint_reward} Reload the game to choose another enemy to '
+            f'fight. Your Notebook has been auto-saved.')
     elif winning_agent is ai_player:
         battle_screen.write_message(f'You died! Reload the game to try again.')
 
@@ -92,6 +95,10 @@ while is_running:
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
             if in_battle:
                 battle_screen.on_button_press(event.ui_element)
+            else:
+                level: Level = level_select.on_button_press(event.ui_element)
+                if level is not None:
+                    start_battle(level.enemy, level.level_start_message)
 
         manager.process_events(event)
 
