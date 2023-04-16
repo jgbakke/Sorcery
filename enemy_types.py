@@ -31,19 +31,19 @@ RAT_KING = Enemy("Rat King",
                  100,
                  {EvadeStat.DEXTERITY: 4, EvadeStat.WILL: 3})
 
-RAT_LESSER = Enemy("Rat Soldier",
+RAT_SOLDIER = Enemy("Rat Soldier",
                    "Acting under the stead of the Rat King, the Rat Solider fights for his homeland with ferocity.",
-                   [EnemyAttack("Rat Bite", "The rat dude bites pretty hard", 10), EnemyAttack("Rat Tail Whip", "The rat whps its tail aroud, smacking you across the face.", 6), EnemyAttack("Rat Fart", "The rat farts... the stink stays with you.", 3, persistent=True)],
+                   [EnemyAttack("Rat Shield Bash", "The Rat Solider smashes his shield into your chest.", 10), EnemyAttack("Rat Tail Whip", "The Rat Soldier whips its tail aroud, smacking you across the face.", 6), EnemyAttack("Rat Fart", "The rat farts... the stink stays with you.", 3, persistent=True)],
                    Element.POISON,
-                    "",
-                    100,
+                    "art/ratsoldier.png",
+                    60,
                     {EvadeStat.DEXTERITY: 4, EvadeStat.WILL: 3})
 
-DRAGON_COMMON = Enemy("Common Dragon",
+DRAGON_COMMON = Enemy("Dragon",
                       "A normal dragon, might branch this out into different types.",
-                      [EnemyAttack("Fire Breath", "The dragon breathes fire, as you would expect.", 14), EnemyAttack("Dragon Stomp", "The dragon stomps its claws into the ground in rage.", 8), EnemyAttack("Dragon Tail Whip", "The dragon whips its tail around to damage those attacking from behind.", 10)],
+                      [EnemyAttack("Fire Breath", "The dragon breathes fire, as you would expect.", 14), EnemyAttack("Dragon Stomp", "The dragon stomps its claws into the ground in rage.", 8), EnemyAttack("Dragon Tail Whip", "The dragon whips its tail around for a large AOE attack.", 10)],
                       Element.FIRE,
-                      "",
+                      "art/dragoncommon.png",
                       100,
                       {EvadeStat.DEXTERITY: 4, EvadeStat.WILL: 3})
 
@@ -57,33 +57,33 @@ LION_WARRIOR = Enemy("Lion Warrior",
 
 MAGE_LIGHTNING = Enemy("Lightning Mage",
                "A mage recenty graduated from the School of Spells and Magic, the Mage uses the most academically viable spells and magic in combat.",
-               [EnemyAttack("Elemental Bolt", f"Fires a {Element.LIGHTNING} bolt at the player.", 10), EnemyAttack("Mage Heal", "Heals Mage", 10, target_self=True), EnemyAttack("Elemental Ball", f"Fires a {Element.LIGHTNING} ball at the player.", 15)],
+               [EnemyAttack("Elemental Bolt", f"Fires a {Element.LIGHTNING} bolt at the player.", 10), EnemyAttack("Mage Heal", "Heals Mage.", 10, target_self=True), EnemyAttack("Elemental Ball", f"Fires a {Element.LIGHTNING} ball at the player.", 15)],
                Element.ANY,
-                "art/player.png", # TODO: Don't use the same one
+                "art/mage.png",
                 100,
                 {EvadeStat.DEXTERITY: 4, EvadeStat.WILL: 3})
 
 CAVE_OCTOPUS = Enemy("Cave Octopus",
                      "The cave octopus evolved for millenia in the darkness, nobody knows what tricks it has up its sleeves.",
-                     [EnemyAttack("Choke Slam", "The cave octopus wraps its tentacles around your neck and slams you forcefully into the ground.", 15), EnemyAttack("Slap", "The octopus slaps you with every tentacle.", 8)],
+                     [EnemyAttack("Choke Slam", "The cave octopus wraps its tentacles around your neck and slams you forcefully into the ground.", 15), EnemyAttack("Slap", "The octopus slaps you with every tentacle.", 8), EnemyAttack("Regenerate", "The Cave Octopus focuses, regenerating any limbs lost or wounds taken during battle.", 10, target_self=True)],
                      Element.EARTH,
-                     "",
+                     "art/caveoctopus.png",
                      100,
                      {EvadeStat.DEXTERITY: 4, EvadeStat.WILL: 3})
 
-CAVE_SCREECHER = Enemy("Cave Screecher",
-                     "The cave screecher lives its whole life without sight, using noise as its only mechanism for attack.",
-                     [EnemyAttack("Choke Slam", "The cave octopus wraps its tentacles around your neck and slams you forcefully into the ground.", 15)],
-                     Element.EARTH,
-                     "",
+SHRIEKER = Enemy("Shrieker",
+                     "The Shrieker lives its whole life without sight, using noise as its only mechanism for attack.",
+                     [EnemyAttack("Shriek", "The Shrieker shrieks with force, sending you flying back.", 15), EnemyAttack("Sustain", "The Shrieker builds up a high-pitched, low-volume shriek to sustain its attributed throughout the fight.", 5, persistent=True)],
+                     Element.AIR,
+                     "art/shrieker.png",
                      100,
                      {EvadeStat.DEXTERITY: 4, EvadeStat.WILL: 3})
 
 MUSHROOM_MAN = Enemy("Mushroom Man", 
-                     "The Mushroom Man descripton (cant think of one rn)",
-                     [],
+                     "The Mushroom Man, a generally dormant creature, will break free from his fungal roots to defend his habitat from outsiders.",
+                     [EnemyAttack("Poison Spray", "The Mushroom Man pulls out a large poisonous mushroom, squeezing it and spraying it on you.", 5, persistent=True), EnemyAttack("Mushroom Smash", "The Mushroom Man's hands grow to the size of boulders and slam you into the ground.", 15), EnemyAttack("Spin", "The Mushroom Man grow his arms out and spins rapidly, resulting in a large AOE attack.", 12)],
                      Element.EARTH,
-                     "",
+                     "art/mushroomman.png",
                      100,
                      {EvadeStat.DEXTERITY: 4, EvadeStat.WILL: 3})
 
