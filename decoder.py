@@ -18,8 +18,12 @@ def decode(words: List, turn_context: TurnContext) -> str:
     spell_arguments = words[4:8]
     target = turn_context.current_player if (words[-1].value & 1) else turn_context.non_current_player
 
-    return spell(element_type, spell_arguments, target, turn_context)
-
+    results = {}
+    description = spell(element_type, spell_arguments, target, turn_context)
+    if not spell.__name__ == "no_spell":
+        spells = '-'.join([w.__str__() for w in words[:8]])
+        results = {spells: [spell.__name__, "Player" if target.name == "Player" else "Enemy", description]}    
+    return description, results
 
 def get_spell_type(words: List[SpellWords]) -> Callable:
     words_tuple = tuple(words[:3])
