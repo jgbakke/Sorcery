@@ -30,8 +30,11 @@ player_words = []
 
 
 def decode_player_spell(turn_context: TurnContext):
-    spell_effect_description = decode(player_words, turn_context)
+    spell_effect_description, results = decode(player_words, turn_context)
     battle_screen.write_message(spell_effect_description)
+    if results:
+        battle_screen.write_to_notebook(results)
+        battle_screen.read_notebook()
 
 
 human_player = GameAgent(100, decode_player_spell, "Player", {}, {Element.NONE}, "art/player.png")

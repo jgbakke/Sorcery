@@ -5,6 +5,7 @@ from pygame_gui.core.interfaces import IUIElementInterface
 from game_agent import GameAgent
 import pygame_gui
 import pygame
+from notebook import Notebook
 from spell_words import SpellWords
 
 BUTTON_WIDTH = 95
@@ -66,6 +67,7 @@ class BattleScreen:
         self.player_turn_callback: Callable[[List[SpellWords]], None] = player_turn_callback
 
         self._player_turn_buttons = [i for i in self.spell_buttons.keys()] + [self.cast_spell]
+        self.notebook = Notebook
 
     def clear_ui(self):
         for element in self._ui_elements:
@@ -77,6 +79,12 @@ class BattleScreen:
 
     def write_message(self, message):
         self._message_box.set_text(str(message))
+
+    def read_notebook(self):
+        self.notebook.read_results()
+
+    def write_to_notebook(self, data):
+        self.notebook.write_results(data)
 
     def write_persistent_effects(self, message: List[str]):
         self._persistent_effects_box.set_text("<br>".join(message))
