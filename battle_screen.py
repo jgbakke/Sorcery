@@ -62,8 +62,8 @@ class BattleScreen:
 
         self._player_turn_buttons = [i for i in self.spell_buttons.keys()] + [self.cast_spell]
 
-    def write_message(self, message: str):
-        self._message_box.set_text(message)
+    def write_message(self, message):
+        self._message_box.set_text(str(message))
 
     def write_persistent_effects(self, message: List[str]):
         self._persistent_effects_box.set_text("<br>".join(message))

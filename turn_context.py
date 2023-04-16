@@ -1,18 +1,21 @@
 from typing import Callable, Optional
-
 from game_agent import GameAgent
 from enum import Enum
 
 
 class TurnContext:
-    def __init__(self, turn: int, game_manager, current_player: GameAgent, non_current_player: GameAgent):
+    def __init__(self, turn: int, game_manager, current_player: GameAgent, non_current_player: GameAgent, battle_gui):
         self.turn = turn
         self._game_manager = game_manager
         self.current_player: GameAgent = current_player
         self.non_current_player: GameAgent = non_current_player
+        self._battle_gui = battle_gui
 
     def register_callback(self, callback):
         self._game_manager.register_callback(callback)
+
+    def write_to_gui(self, message):
+        self._battle_gui.write_message(message)
 
 
 class TurnCallbackTime(Enum):

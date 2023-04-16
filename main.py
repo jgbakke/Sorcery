@@ -33,7 +33,7 @@ def decode_player_spell(turn_context: TurnContext):
     battle_screen.write_message(spell_effect_description)
 
 
-human_player = GameAgent(10, decode_player_spell, "Player", {}, {Element.NONE}, "art/player.png")
+human_player = GameAgent(50, decode_player_spell, "Player", {}, {Element.NONE}, "art/player.png")
 
 ai_player = game_manager.EnemyFactory(RAT_KING) # Should be able to interchange RAT_KING with any of the enemies in enemy_type.
 
@@ -66,6 +66,7 @@ def take_player_turn(words: List[SpellWords]):
 
 
 battle_screen: BattleScreen = BattleScreen(human_player, ai_player, manager, take_player_turn)
+gm.init_gui(battle_screen)
 
 
 while is_running:
@@ -82,7 +83,6 @@ while is_running:
     manager.update(time_delta)
 
     if not player_turn and pygame.time.get_ticks() - player_took_turn_at > TIME_BETWEEN_TURNS:
-        # TODO: Display enemy attack tooltip
         winner = gm.take_ai_turn()
         if winner is not None:
             battle_screen.write_message(f'{winner.name} won!')
@@ -90,8 +90,6 @@ while is_running:
         battle_screen.write_persistent_effects(gm.get_persistent_effects_messages())
         player_turn = True
         battle_screen.enable_player_turn_buttons(True)
-
-    # TODO: Check if somebody is dead
 
     window_surface.blit(background, (0, 0))
     manager.draw_ui(window_surface)

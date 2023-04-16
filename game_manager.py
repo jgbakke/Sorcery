@@ -1,11 +1,10 @@
-from typing import List, Callable, Union
-from turn_context import TurnContext, TurnCallbackTime, PersistentEffect, apply_poison
-from decoder import decode
-from spell_words import SpellWords
-from enemy_types import *
 from random import sample
-from game_agent import GameAgent, EvadeStat
-from elements import Element
+from typing import Union
+
+from battle_screen import BattleScreen
+from enemy_types import *
+from game_agent import GameAgent
+from turn_context import TurnContext, TurnCallbackTime, PersistentEffect
 
 
 class GameManager:
@@ -14,6 +13,10 @@ class GameManager:
         self._ai_player = ai_player
         self._turn_callbacks: List[PersistentEffect] = list()
         self.turn = 0
+        self._battle_gui = None
+
+    def init_gui(self, battle_gui: BattleScreen):
+        self._battle_gui = battle_gui
 
     def register_callback(self, callback):
         self._turn_callbacks.append(callback)
@@ -47,7 +50,7 @@ class GameManager:
 
     def _take_turn(self, current_player: GameAgent, non_current_player: GameAgent):
         self.execute_callbacks(current_player, TurnCallbackTime.START)
-        current_player.take_turn(TurnContext(self.turn, self, current_player, non_current_player))
+        current_player.take_turn(TurnContext(self.turn, self, current_player, non_current_player, self._battle_gui))
         self.execute_callbacks(current_player, TurnCallbackTime.END)
 
         return self.check_winner()
@@ -61,35 +64,22 @@ class GameManager:
             print("Human wins")
             return self._human_player
 
-    def start_battle(self):
-        print("Using the GUI now. Will be removing this func")
-
-
-def ai_attack(turn_context: TurnContext, damage: int, element: Element):
-    damage_to_player = turn_context.non_current_player.reduce_damage(damage, EvadeStat.NONE, element)
-    turn_context.non_current_player.damage(damage_to_player)
-    print("Player takes", damage_to_player, "damage")
-
-
-def take_ai_turn(turn_context: TurnContext):
-    attacks: List[Callable] = [
-        lambda: ai_attack(turn_context, 1, Element.EARTH),
-        lambda: turn_context.non_current_player.damage(7),
-        lambda: turn_context.current_player.heal(3),
-        lambda: turn_context.register_callback(
-            apply_poison(turn_context.current_player, turn_context.non_current_player, 5, 2))
-    ]
-
-    attacks[0]()
 
 def take_enemy_turn(turn_context: TurnContext):
     attacks = turn_context.current_player.attacks
     attack = sample(attacks, k=1)[0]
-    print(attack.name, attack.description)
+    gui_output = f'{turn_context.current_player.name} uses {attack.name}. {attack.description}'
+    attack_strength = attack.hp # TODO: A little randomization here? +/- 10% maybe?
+
     if attack.target_self:
-        turn_context.current_player.heal(attack.hp)
+        turn_context.current_player.heal(attack_strength)
+        gui_output += f' {turn_context.current_player.name} heals {attack_strength}.'
     else:
-        turn_context.non_current_player.damage(attack.hp)
+        turn_context.non_current_player.damage(attack_strength)
+        gui_output += f' {turn_context.non_current_player.name} takes {attack_strength} damage.'
+
+    turn_context.write_to_gui(gui_output)
+
 
 def EnemyFactory(enemy: Enemy) -> GameAgent:
     name = enemy.name
@@ -99,11 +89,10 @@ def EnemyFactory(enemy: Enemy) -> GameAgent:
     filepath = enemy.filepath
     hp = enemy.hp
     stats = enemy.stats
-    game_agent = GameAgent(hp,
-                      take_enemy_turn,
-                      name,
-                      stats,
-                      elemental,
-                      filepath,
-                      attacks=attacks)
-    return game_agent
+    return GameAgent(hp,
+                     take_enemy_turn,
+                     name,
+                     stats,
+                     elemental,
+                     filepath,
+                     attacks=attacks)
