@@ -78,7 +78,7 @@ def check_end_battle(winning_agent: Union[GameAgent, None]) -> bool:
         return False
 
     if winning_agent is human_player:
-        # TODO: Get a tip and add it to the notebook, then reset and pick new battle
+        battle_screen.notebook.flush_data()
         battle_screen.write_message(
             f'You defeated the {ai_player.name}! {level.spell_hint_reward} Reload the game to choose another enemy to '
             f'fight. Your Notebook has been auto-saved.')

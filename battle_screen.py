@@ -80,9 +80,8 @@ class BattleScreen:
         self.player_turn_callback: Callable[[List[SpellWords]], None] = player_turn_callback
 
         self._player_turn_buttons = [i for i in self.spell_buttons.keys()] + [self.cast_spell]
-        self.notebook = Notebook
+        self.notebook = Notebook()
 
-        # self.output_window = self.add_element(pygame_gui.elements.UIWindow(pygame.Rect(400, 20, 300, 400), window_display_title="Pygame GUI Formatted Text"))
         
     def clear_ui(self):
         for element in self._ui_elements:
