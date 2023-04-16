@@ -20,7 +20,6 @@ class Notebook:
             data = json.load(resultsFile)
         resultsFile.close()
         
-        print(data)
         return data
 
     def write_results(data):
