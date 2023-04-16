@@ -131,9 +131,9 @@ def shield(element: Element, arguments: List, target: GameAgent, turn_context: T
     target.apply_shield(element, total_shield_strength)
     turn_context.register_callback(PersistentEffect(
         turn_context.current_player,
-        1,
+        2,
         f'A shield of {element} protects {target.name} from the next attack, up to {total_shield_strength} HP',
-        TurnCallbackTime.START,
+        TurnCallbackTime.END,
         lambda: None,
         lambda: None,
         lambda: target.clear_shield()

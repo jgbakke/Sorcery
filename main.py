@@ -34,7 +34,7 @@ def decode_player_spell(turn_context: TurnContext):
     battle_screen.write_message(spell_effect_description)
 
 
-human_player = GameAgent(10, decode_player_spell, "Player", {}, {Element.NONE}, "art/player.png")
+human_player = GameAgent(100, decode_player_spell, "Player", {}, {Element.NONE}, "art/player.png")
 ai_player: GameAgent
 gm: game_manager.GameManager
 
