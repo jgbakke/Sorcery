@@ -68,10 +68,21 @@ def take_enemy_turn(turn_context: TurnContext):
     attack = sample(attacks, k=1)[0]
     gui_output = f'{turn_context.current_player.name} uses {attack.name}. {attack.description}'
     attack_strength = attack.hp # TODO: A little randomization here? +/- 10% maybe?
-
+    
     if attack.target_self:
         turn_context.current_player.heal(attack_strength)
         gui_output += f' {turn_context.current_player.name} heals {attack_strength}.'
+    elif attack.persistent:
+        turn_context.register_callback(
+            PersistentEffect(turn_context.current_player, 
+                            3,
+                            f'{turn_context.non_current_player.name} will suffer {attack_strength} damage per turn',
+                            TurnCallbackTime.END,
+                            lambda: turn_context.non_current_player.damage(attack_strength),
+                            lambda: turn_context.non_current_player.damage(attack_strength),
+                            lambda: None)
+        )
+        gui_output += f' {turn_context.non_current_player.name} takes {attack_strength} damage.'
     else:
         turn_context.non_current_player.damage(attack_strength)
         gui_output += f' {turn_context.non_current_player.name} takes {attack_strength} damage.'

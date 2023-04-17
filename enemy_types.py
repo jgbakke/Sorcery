@@ -73,7 +73,7 @@ CAVE_OCTOPUS = Enemy("Cave Octopus",
 
 SHRIEKER = Enemy("Shrieker",
                      "The Shrieker lives its whole life without sight, using noise as its only mechanism for attack.",
-                     [EnemyAttack("Shriek", "The Shrieker shrieks with force, sending you flying back.", 15), EnemyAttack("Sustain", "The Shrieker builds up a high-pitched, low-volume shriek to sustain its attributed throughout the fight.", 5, persistent=True)],
+                     [EnemyAttack("Shriek", "The Shrieker shrieks with force, sending you flying back.", 15), EnemyAttack("Sustain", "The Shrieker builds up a high-pitched, low-volume shriek to sustain damage throughout the fight.", 5, persistent=True)],
                      Element.AIR,
                      "art/shrieker.png",
                      100,
