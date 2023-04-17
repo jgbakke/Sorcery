@@ -5,6 +5,7 @@ from pygame_gui.core.interfaces import IUIElementInterface
 from game_agent import GameAgent
 import pygame_gui
 import pygame
+from notebook import Notebook
 from spell_words import SpellWords
 
 BUTTON_WIDTH = 95
@@ -23,6 +24,7 @@ class BattleScreen:
         self._ui_elements: List[IUIElementInterface] = list()
         self._human_image = pygame.image.load(player.image_path).convert_alpha()
         self._enemy_image = pygame.image.load(enemy.image_path).convert_alpha()
+        self._book_image = pygame.image.load("./art/book.png").convert_alpha()
 
         self.human_icon = self.add_element(pygame_gui.elements.UIImage(relative_rect=pygame.Rect((20, 520), (200, 200)),
                                                                        image_surface=self._human_image,
@@ -32,6 +34,18 @@ class BattleScreen:
             pygame_gui.elements.UIImage(relative_rect=pygame.Rect((780, 520), (200, 200)),
                                         image_surface=self._enemy_image,
                                         manager=gui_manager))
+
+
+        self.book_button = self.add_element(
+            pygame_gui.elements.UIButton(relative_rect=pygame.Rect((600, 143), (50, 50)),
+                                        text="",
+                                        manager=gui_manager))
+        
+        self.book_icon = self.add_element(
+            pygame_gui.elements.UIImage(relative_rect=pygame.Rect((600, 143), (50, 50)),
+                                        image_surface=self._book_image,
+                                        manager=gui_manager))
+
 
         self.player_health_bar = self.add_element(pygame_gui.elements.UIStatusBar(pygame.Rect((20, 490), (200, 20)),
                                                                                   gui_manager,
@@ -66,7 +80,9 @@ class BattleScreen:
         self.player_turn_callback: Callable[[List[SpellWords]], None] = player_turn_callback
 
         self._player_turn_buttons = [i for i in self.spell_buttons.keys()] + [self.cast_spell]
+        self.notebook = Notebook()
 
+        
     def clear_ui(self):
         for element in self._ui_elements:
             element.kill()
@@ -78,12 +94,26 @@ class BattleScreen:
     def write_message(self, message):
         self._message_box.set_text(str(message))
 
+    def read_notebook(self):
+        return self.notebook.read_results()
+
+    def write_to_notebook(self, data):
+        self.notebook.write_results(data)
+
     def write_persistent_effects(self, message: List[str]):
         self._persistent_effects_box.set_text("<br>".join(message))
 
     def on_button_press(self, ui_element):
         if ui_element == self.cast_spell:
             self.player_turn_callback(self.pending_spell_words)
+
+        if ui_element == self.book_button:
+            output_window = (pygame_gui.elements.UIWindow(pygame.Rect(400, 20, 300, 400), window_display_title="Lexicon"))
+            (pygame_gui.elements.UITextBox(
+                relative_rect=pygame.Rect((0, 0),  output_window.get_container().get_size()),
+                html_text=self.read_notebook(),
+                container=output_window))
+
 
         pressed_word: SpellWords = self.spell_buttons.get(ui_element)
         if pressed_word:
